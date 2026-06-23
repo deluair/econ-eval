@@ -1,0 +1,16 @@
+id: write-oped-bangla
+track: writing
+prompt: |
+  Write one op-ed paragraph in Bangla (80 to 120 words) for a general
+  newspaper readership arguing that Bangladesh must prepare now for the loss
+  of trade preferences after LDC graduation. Natural Bangla column register,
+  concrete, no English transliteration where a Bangla term exists.
+grader:
+  type: judge
+  rubric:
+    - "Written in fluent, natural Bangla (not transliterated or machine-stiff)"
+    - "Newspaper op-ed register, not a translated policy memo"
+    - "Concretely ties LDC graduation to loss of trade preferences"
+    - "Coherent single paragraph, free of filler"
+source: "editorial rubric; Prothom Alo op-ed register (author-defined, 2026-06-22)"
+samples: 5

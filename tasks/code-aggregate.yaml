@@ -1,0 +1,18 @@
+id: code-aggregate
+track: coding
+prompt: |
+  Write a Python function total_by_country(rows) that takes a list of dicts,
+  each with keys "country" and "value", and returns a dict mapping each
+  country to the sum of its values. Standard library only. Return only the
+  code.
+grader:
+  type: code_exec
+  assertions: |
+    r = [{"country": "BGD", "value": 10}, {"country": "VNM", "value": 5},
+         {"country": "BGD", "value": 7}]
+    out = total_by_country(r)
+    assert out == {"BGD": 17, "VNM": 5}
+    assert total_by_country([]) == {}
+  timeout_s: 20
+source: "deterministic unit test (author-defined, 2026-06-22)"
+samples: 5

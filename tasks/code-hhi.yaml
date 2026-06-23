@@ -1,0 +1,16 @@
+id: code-hhi
+track: coding
+prompt: |
+  Write a Python function hhi(shares) that returns the Herfindahl-Hirschman
+  Index for a list of market shares given as fractions that sum to 1.0. The
+  HHI is the sum of squared shares (so a monopoly returns 1.0). Use only the
+  standard library. Return only the code.
+grader:
+  type: code_exec
+  assertions: |
+    assert abs(hhi([1.0]) - 1.0) < 1e-9
+    assert abs(hhi([0.5, 0.5]) - 0.5) < 1e-9
+    assert abs(hhi([0.25, 0.25, 0.25, 0.25]) - 0.25) < 1e-9
+  timeout_s: 20
+source: "deterministic unit test; HHI definition (author-defined, 2026-06-22)"
+samples: 5

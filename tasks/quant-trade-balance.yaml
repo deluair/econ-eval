@@ -1,0 +1,13 @@
+id: quant-trade-balance
+track: quantitative
+prompt: |
+  Bangladesh 2022 (thousands USD, BACI): total exports 65,871,533.413;
+  total imports 84,489,226.854. Compute the merchandise trade balance
+  (exports minus imports). Reply with a single signed number in thousands
+  USD on a line beginning "ANSWER:".
+grader:
+  type: numeric
+  reference: -18617693.441
+  tolerance_pct: 0.1
+source: "~/tradeweave/data/parquet/country_year_totals.parquet (BACI, computed 2026-06-22)"
+samples: 5

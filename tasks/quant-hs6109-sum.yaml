@@ -1,0 +1,14 @@
+id: quant-hs6109-sum
+track: quantitative
+prompt: |
+  Bangladesh's 2022 T-shirt exports to the world, in thousands USD (BACI):
+  HS 610910 (cotton T-shirts): 8,352,882.433
+  HS 610990 (other T-shirts): 935,481.750
+  What is the total for HS heading 6109? Reply with a single number in
+  thousands USD on a line beginning "ANSWER:".
+grader:
+  type: numeric
+  reference: 9288364.183
+  tolerance_pct: 0.1
+source: "~/tradeweave/data/parquet/country_year_product (BACI HS92, computed 2026-06-22 via scripts/build_references.py)"
+samples: 5

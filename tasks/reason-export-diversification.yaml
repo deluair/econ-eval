@@ -1,0 +1,16 @@
+id: reason-export-diversification
+track: reasoning
+prompt: |
+  Bangladesh's exports are heavily concentrated in ready-made garments.
+  Using the logic of economic complexity (relatedness / proximity in the
+  product space), explain why diversification is hard and name one
+  realistic adjacent capability to target. Under 150 words.
+grader:
+  type: judge
+  rubric:
+    - "Explains diversification difficulty via relatedness: new products need capabilities close to existing ones"
+    - "Correctly frames RMG as relatively low-complexity / peripheral in the product space"
+    - "Names a plausible adjacent target (e.g. technical textiles, footwear, light manufacturing) with a capability rationale"
+    - "Avoids vague 'just diversify' advice"
+source: "rubric authored from Hausmann/Hidalgo economic complexity framework; editorial (2026-06-22)"
+samples: 5

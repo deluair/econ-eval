@@ -1,0 +1,16 @@
+id: write-exec-summary
+track: writing
+prompt: |
+  Bangladesh's 2022 merchandise trade balance was about negative 18.6 billion
+  USD (exports ~65.9bn, imports ~84.5bn). Write a 90 to 120 word executive
+  summary for a finance ministry audience: state the situation, one driver,
+  and one implication. No filler.
+grader:
+  type: judge
+  rubric:
+    - "Correctly states a sizeable merchandise trade deficit consistent with the figures"
+    - "Identifies a plausible driver (import dependence, energy/capital goods, etc.)"
+    - "States a concrete implication (FX reserves, current account, financing)"
+    - "Executive-summary register, 90 to 120 words, no boilerplate"
+source: "figures from quant-trade-balance (BACI 2022); editorial rubric (author-defined, 2026-06-22)"
+samples: 5

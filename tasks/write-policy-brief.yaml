@@ -1,0 +1,16 @@
+id: write-policy-brief
+track: writing
+prompt: |
+  Write a 100 to 130 word policy-brief paragraph for a Bangladeshi
+  policymaker on why export diversification beyond ready-made garments
+  matters for the next decade. Professional register, one concrete lever,
+  no filler.
+grader:
+  type: judge
+  rubric:
+    - "Length roughly 100 to 130 words, single focused paragraph"
+    - "Names at least one concrete, realistic diversification lever (not generic)"
+    - "Professional policy-brief register, no boilerplate intro/outro or hedging filler"
+    - "Forward-looking (next-decade framing), internally consistent"
+source: "editorial rubric; BDPolicyLab brief register (author-defined, 2026-06-22)"
+samples: 5

@@ -1,0 +1,16 @@
+id: reason-taka-depreciation
+track: reasoning
+prompt: |
+  The Bangladeshi taka depreciates 15% against the US dollar over a year.
+  Explain the opposing effects on (a) a ready-made garment exporter and
+  (b) a firm importing industrial machinery, and state who is net better
+  off and why. Under 150 words.
+grader:
+  type: judge
+  rubric:
+    - "Notes exporters gain: dollar revenue worth more in taka / improved price competitiveness"
+    - "Notes the RMG import-content caveat (fabric/yarn imports raise costs, dampening the gain)"
+    - "Notes importers of machinery face higher taka cost / squeezed margins"
+    - "Reaches a defensible net judgement with a stated reason"
+source: "rubric authored from standard open-economy exchange-rate pass-through theory; editorial (2026-06-22)"
+samples: 5

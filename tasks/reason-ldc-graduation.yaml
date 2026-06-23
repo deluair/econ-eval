@@ -1,0 +1,16 @@
+id: reason-ldc-graduation
+track: reasoning
+prompt: |
+  Bangladesh is set to graduate from UN Least Developed Country status.
+  Explain the single largest trade-policy risk this creates for its
+  ready-made garment exporters, and one concrete mitigation. Be specific
+  and brief (under 150 words).
+grader:
+  type: judge
+  rubric:
+    - "Identifies loss of LDC duty-free / preferential market access (e.g. EU EBA / GSP) as the core risk"
+    - "Connects the risk specifically to RMG tariff exposure in a key market"
+    - "Proposes a concrete, realistic mitigation (FTA/EPA, GSP+ eligibility, productivity/diversification), not a platitude"
+    - "Stays focused and free of filler or generic hedging"
+source: "rubric authored from WTO/UN LDC graduation rules and EU EBA terms; criteria are editorial (2026-06-22)"
+samples: 5

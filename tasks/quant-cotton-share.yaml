@@ -1,0 +1,13 @@
+id: quant-cotton-share
+track: quantitative
+prompt: |
+  Bangladesh 2022 (thousands USD, BACI): HS 610910 cotton T-shirt exports
+  8,352,882.433; HS 6109 heading total 9,288,364.183. What percentage of
+  heading 6109 was cotton T-shirts (610910)? Reply with a single number
+  (percent, one or two decimals) on a line beginning "ANSWER:".
+grader:
+  type: numeric
+  reference: 89.93
+  tolerance_pct: 0.5
+source: "~/tradeweave/data/parquet/country_year_product (BACI, computed 2026-06-22)"
+samples: 5
