@@ -1,0 +1,14 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.uv/
+# Data (backed up to GDrive, not git)
+data/*.parquet
+data/*.csv
+data/*.duckdb
+# Large transcripts kept out of git; scored sqlite is committed
+results/transcripts-*.jsonl
+*.wal
+*.shm
+.DS_Store
