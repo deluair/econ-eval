@@ -53,3 +53,18 @@ def test_zai_run_parses_message(monkeypatch):
     assert c.text == "hello world"
     assert c.tokens_in == 7 and c.tokens_out == 3
     assert c.model == "glm-5.2"
+
+
+def test_opus_parses_stream_array():
+    arr = json.dumps([
+        {"type": "system", "subtype": "init"},
+        {"type": "assistant", "message": {"content": [{"type": "text", "text": "partial"}],
+                                          "usage": {"input_tokens": 999, "output_tokens": 1}}},
+        {"type": "result", "result": "ANSWER: 42",
+         "usage": {"input_tokens": 12000, "output_tokens": 7}},
+    ])
+    fake = SimpleNamespace(returncode=0, stdout=arr, stderr="")
+    with patch("econ_eval.adapters.opus.subprocess.run", return_value=fake):
+        c = OpusAdapter().run("q")
+    assert c.text == "ANSWER: 42"
+    assert c.tokens_in == 12000 and c.tokens_out == 7
