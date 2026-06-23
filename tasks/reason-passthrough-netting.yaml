@@ -1,0 +1,19 @@
+id: reason-passthrough-netting
+track: reasoning
+prompt: |
+  A Bangladeshi ready-made garment exporter sells entirely in US dollars but
+  imports about 70% of its input value (fabric, yarn, trims). The taka
+  depreciates 15% against the dollar. Walk through the effect on the
+  exporter's margin per unit, netting the revenue gain against the higher
+  import cost, and state whether net margin rises, falls, or is roughly flat,
+  with rough magnitudes. Under 160 words.
+grader:
+  type: judge
+  rubric:
+    - "Recognizes dollar revenue is worth ~15% more in taka (gross revenue gain)"
+    - "Recognizes the ~70% imported input cost also rises ~15% in taka, partly offsetting the gain"
+    - "Nets the two: the gain applies to 100% of revenue while the cost hit applies to ~70% of value, so net margin rises"
+    - "Gives a defensible rough magnitude consistent with the netting (not a hand-wave)"
+    - "Does not naively conclude depreciation is unambiguously good with no import-cost caveat"
+source: "rubric authored from exchange-rate pass-through with imported intermediates; editorial (2026-06-22)"
+samples: 5

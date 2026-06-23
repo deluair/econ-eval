@@ -1,0 +1,18 @@
+id: quant-rca-6109
+track: quantitative
+prompt: |
+  Compute Bangladesh's 2022 Balassa Revealed Comparative Advantage (RCA) in
+  HS heading 6109 (T-shirts). RCA = (country's share of the product in its own
+  exports) / (the product's share of world exports). Inputs, all in thousands
+  USD (BACI):
+    Bangladesh HS 6109 exports: 9,288,364.183
+    Bangladesh total exports:   65,871,533.413
+    World HS 6109 exports:       52,091,992.664
+    World total exports:         24,145,991,347.414
+  Reply with the RCA to two decimals on a line beginning "ANSWER:".
+grader:
+  type: numeric
+  reference: 65.36
+  tolerance_pct: 0.5
+source: "~/tradeweave/data/parquet (BACI 2022, computed 2026-06-22 via build_references.py)"
+samples: 5

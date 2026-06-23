@@ -1,0 +1,23 @@
+id: code-method-of-reflections
+track: coding
+prompt: |
+  In the method of reflections for economic complexity, given a binary
+  country-by-product matrix M (M[c][p] = 1 if country c has revealed
+  comparative advantage in product p, else 0), the zeroth-order measures are:
+  diversity = number of products each country is competitive in (row sums),
+  and ubiquity = number of countries competitive in each product (column sums).
+  Write a Python function diversity_ubiquity(M) that returns a tuple
+  (diversity, ubiquity), each a list of ints. Standard library only. Return
+  only the code.
+grader:
+  type: code_exec
+  assertions: |
+    M = [[1, 1, 0], [1, 0, 0], [1, 1, 1]]
+    div, ubi = diversity_ubiquity(M)
+    assert div == [2, 1, 3]
+    assert ubi == [3, 2, 1]
+    d2, u2 = diversity_ubiquity([[0, 0], [0, 0]])
+    assert d2 == [0, 0] and u2 == [0, 0]
+  timeout_s: 20
+source: "deterministic unit test; Hidalgo-Hausmann method of reflections (author-defined, 2026-06-22)"
+samples: 5

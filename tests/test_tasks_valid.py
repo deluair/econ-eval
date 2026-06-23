@@ -8,8 +8,8 @@ TASK_DIR = Path(__file__).resolve().parent.parent / "tasks"
 TASK_FILES = sorted(TASK_DIR.glob("*.yaml"))
 
 
-def test_there_are_twelve_tasks():
-    assert len(TASK_FILES) == 12
+def test_there_are_twenty_tasks():
+    assert len(TASK_FILES) == 20
 
 
 @pytest.mark.parametrize("path", TASK_FILES, ids=lambda p: p.stem)
@@ -31,7 +31,7 @@ def test_three_tasks_per_track():
     for p in TASK_FILES:
         t = Task.from_yaml(p)
         counts[t.track] = counts.get(t.track, 0) + 1
-    assert counts == {"quantitative": 3, "reasoning": 3, "coding": 3, "writing": 3}
+    assert counts == {"quantitative": 5, "reasoning": 5, "coding": 5, "writing": 5}
 
 
 def test_one_bangla_writing_task():

@@ -1,0 +1,13 @@
+id: quant-unit-trap
+track: quantitative
+prompt: |
+  BACI reports values in THOUSANDS of US dollars. Bangladesh's 2022 total
+  merchandise exports are recorded as 65,871,533.413 (thousands USD). Express
+  this figure in BILLIONS of US dollars, to two decimal places. Reply with a
+  single number on a line beginning "ANSWER:".
+grader:
+  type: numeric
+  reference: 65.87
+  tolerance_pct: 0.5
+source: "~/tradeweave/data/parquet/country_year_totals.parquet (BACI 2022, computed 2026-06-22)"
+samples: 5

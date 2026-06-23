@@ -1,0 +1,18 @@
+id: write-tight-constraints
+track: writing
+prompt: |
+  Write a single paragraph of 55 to 65 words advising Bangladesh on preserving
+  garment-market access after LDC graduation. Hard constraints: name two
+  specific, real policy instruments (for example an EU GSP+ scheme and a
+  bilateral free trade agreement); use no hedging words (could, might, perhaps,
+  maybe, possibly); use no dashes of any kind. Professional register.
+grader:
+  type: judge
+  rubric:
+    - "Length is within 55 to 65 words (count the words)"
+    - "Names two specific, real, distinct policy instruments (not generic 'trade deals')"
+    - "Contains none of the hedging words: could, might, perhaps, maybe, possibly"
+    - "Contains no em-dash or en-dash anywhere"
+    - "Reads as professional policy advice, not filler"
+source: "editorial rubric; constraint-adherence test (author-defined, 2026-06-22)"
+samples: 5

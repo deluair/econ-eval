@@ -1,0 +1,18 @@
+id: reason-rca-interpretation
+track: reasoning
+prompt: |
+  Bangladesh's Balassa RCA in T-shirts (HS 6109) is roughly 65, meaning it is
+  about 65 times more specialized in T-shirts than the world average. Explain
+  what a value this extreme implies about the economy, why such specialization
+  is a double-edged sword, and what economic-complexity theory predicts about
+  how hard diversification will be from this position. Under 160 words.
+grader:
+  type: judge
+  rubric:
+    - "Reads RCA ~65 as extreme over-specialization / concentration in one low-complexity product"
+    - "Names the upside (scale, competitiveness, jobs, FX) of deep specialization"
+    - "Names the downside (concentration risk, exposure to demand/preference shocks, low value-add)"
+    - "Invokes economic complexity / product-space relatedness: diversification is hard because RMG is peripheral with few nearby capabilities"
+    - "Avoids generic 'just diversify' advice and stays internally consistent"
+source: "rubric from Balassa RCA + Hausmann/Hidalgo complexity; editorial (2026-06-22)"
+samples: 5

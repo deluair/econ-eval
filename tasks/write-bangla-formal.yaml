@@ -1,0 +1,18 @@
+id: write-bangla-formal
+track: writing
+prompt: |
+  Write a formal policy-memo paragraph in Bangla (90 to 120 words) addressed to
+  the Ministry of Commerce, recommending one concrete step to diversify exports
+  beyond ready-made garments. Use formal Bangla administrative register and
+  correct Bangla economic terminology (avoid unnecessary English transliteration
+  where a standard Bangla term exists). Be specific, not generic.
+grader:
+  type: judge
+  rubric:
+    - "Written in fluent, grammatically correct Bangla"
+    - "Formal administrative / policy-memo register (not casual, not op-ed)"
+    - "Uses correct Bangla economic terms rather than transliterated English where a Bangla term exists"
+    - "Recommends one concrete, specific diversification step (not a vague aspiration)"
+    - "Coherent and within 90 to 120 words"
+source: "editorial rubric; formal Bangla policy register (author-defined, 2026-06-22)"
+samples: 5

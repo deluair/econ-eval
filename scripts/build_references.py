@@ -40,5 +40,20 @@ def main() -> None:
     print(f"  cotton share of HS 6109 (%)       : {cotton_share:,.4f}   <- task quant-cotton-share")
 
 
+def harder() -> None:
+    """Reference values for the harder (v2) quantitative tasks."""
+    bgd_6109 = scalar(f"SELECT sum(export_value) FROM read_parquet('{CYP}') WHERE country_code=50 AND year=2022 AND product_code IN ('610910','610990')")
+    bgd_total = scalar(f"SELECT total_exports FROM '{TOTALS}' WHERE country_code=50 AND year=2022")
+    world_6109 = scalar(f"SELECT sum(export_value) FROM read_parquet('{CYP}') WHERE year=2022 AND product_code IN ('610910','610990')")
+    world_total = scalar(f"SELECT sum(total_exports) FROM '{TOTALS}' WHERE year=2022")
+    rca = (bgd_6109 / bgd_total) / (world_6109 / world_total)
+    print("\nHarder-task references (BACI 2022):")
+    print(f"  RCA inputs (k USD): bgd_6109={bgd_6109:,.3f} bgd_total={bgd_total:,.3f} "
+          f"world_6109={world_6109:,.3f} world_total={world_total:,.3f}")
+    print(f"  RCA (Balassa)                  : {rca:,.4f}   <- task quant-rca-6109")
+    print(f"  total exports in billions USD  : {bgd_total/1e6:,.4f}   <- task quant-unit-trap")
+
+
 if __name__ == "__main__":
     main()
+    harder()

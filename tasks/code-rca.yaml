@@ -1,0 +1,17 @@
+id: code-rca
+track: coding
+prompt: |
+  Write a Python function rca(x_ci, x_c, x_wi, x_w) that returns the Balassa
+  Revealed Comparative Advantage: (x_ci / x_c) / (x_wi / x_w), where x_ci is a
+  country's exports of product i, x_c the country's total exports, x_wi world
+  exports of product i, and x_w world total exports. Standard library only.
+  Return only the code.
+grader:
+  type: code_exec
+  assertions: |
+    assert abs(rca(10, 100, 100, 1000) - 1.0) < 1e-9
+    assert abs(rca(20, 100, 100, 1000) - 2.0) < 1e-9
+    assert abs(rca(9288364.183, 65871533.413, 52091992.664, 24145991347.414) - 65.36) < 0.1
+  timeout_s: 20
+source: "deterministic unit test; Balassa RCA definition (author-defined, 2026-06-22)"
+samples: 5
