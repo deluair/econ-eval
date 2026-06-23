@@ -35,3 +35,21 @@ One YAML per task in `tasks/`. Every task needs a real `source`. Quantitative
 reference values are computed by `scripts/build_references.py` from primary
 data (BACI / IMF / FRED / TradeWeave parquet) and verified before commit. No
 fabricated values. See `docs/superpowers/specs/` for the full design.
+
+## Cost caveat (important)
+
+Opus is called through the `claude` CLI, so each call's reported `input_tokens`
+includes the entire Claude Code harness context (tools, skills, memory) - on
+the order of 10k+ tokens per call regardless of prompt size. GLM is a bare API
+call. The cost-per-correct figure for Opus is therefore an upper bound and is
+NOT directly comparable to GLM's. Treat the cost column as "Opus via this
+subscription path" vs "GLM via raw API", not a like-for-like token cost.
+
+## Interpreting results
+
+The harness will not declare a winner unless the paired sign test is
+significant at alpha=0.05. With a small task set or low N you will often see
+"no significant difference" even at a 1.00 win-rate - that is correct, not a
+bug. Scale up N (`-n`) and add tasks for a real verdict. The seed tasks are
+deliberately tractable (compute-over-provided-data, deterministic coding); add
+harder, more discriminating tasks to widen the gap.
