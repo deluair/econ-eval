@@ -11,7 +11,11 @@ graded by Claude Opus 5. Every score carries a bootstrap 95% CI, and every
 challenger is compared to Claude Opus 4.8 with an exact binomial sign test.
 
 Run completed 2026-08-01. All 1,000 completions graded, all 500 subjective rows
-scored by a single judge.
+scored by a single judge. Raw output: [`results/report-2026-08-01.md`](results/report-2026-08-01.md),
+quality-vs-cost plot at `results/plot-2026-08-01.png`, per-sample scores in
+`results/scores.sqlite`.
+
+![quality vs cost](results/plot-2026-08-01.png)
 
 ## Leaderboard
 
@@ -75,6 +79,43 @@ the writing and reasoning tracks.**
 | nvidia/nemotron-3-ultra-550b-a55b | 0.960 | 1.000 | 1.000 | **0.638** |
 | glm-5.2 | 0.800 | 0.872 | 1.000 | 0.820 |
 | meta-llama/llama-4-maverick | 0.920 | 0.828 | 1.000 | 0.708 |
+
+### Which tasks did any work
+
+Spread is max minus min model score on that task. A task with spread 0.000
+separates nothing and is pure ballast.
+
+| task | track | mean | worst model | spread |
+|---|---|---|---|---|
+| quant-rca-6109 | quantitative | 0.820 | 0.000 | **1.000** |
+| write-oped-bangla | writing | 0.845 | 0.400 | **0.600** |
+| write-bangla-formal | writing | 0.788 | 0.400 | **0.560** |
+| write-policy-brief | writing | 0.785 | 0.500 | 0.400 |
+| reason-taka-depreciation | reasoning | 0.855 | 0.700 | 0.300 |
+| reason-export-diversification | reasoning | 0.935 | 0.750 | 0.250 |
+| reason-rca-interpretation | reasoning | 0.940 | 0.760 | 0.240 |
+| code-cagr | coding | 0.980 | 0.800 | 0.200 |
+| reason-passthrough-netting | reasoning | 0.952 | 0.800 | 0.200 |
+| write-tight-constraints | writing | 0.908 | 0.840 | 0.120 |
+| write-exec-summary | writing | 0.775 | 0.750 | 0.100 |
+| reason-ldc-graduation | reasoning | 0.995 | 0.950 | 0.050 |
+| quant-cotton-share | quantitative | 1.000 | 1.000 | 0.000 |
+| quant-hs6109-sum | quantitative | 1.000 | 1.000 | 0.000 |
+| quant-trade-balance | quantitative | 1.000 | 1.000 | 0.000 |
+| quant-unit-trap | quantitative | 1.000 | 1.000 | 0.000 |
+| code-aggregate | coding | 1.000 | 1.000 | 0.000 |
+| code-hhi | coding | 1.000 | 1.000 | 0.000 |
+| code-method-of-reflections | coding | 1.000 | 1.000 | 0.000 |
+| code-rca | coding | 1.000 | 1.000 | 0.000 |
+
+**Eight of twenty tasks are dead weight**: every model scores 1.000, including
+`quant-unit-trap`, which was written specifically to catch unit errors and
+caught none. Three tasks (one RCA, two Bangla) carry most of the discrimination.
+The benchmark is doing real work with roughly a third of its surface area.
+
+Keep the dead tasks as regression tests, since a future model failing
+`code-hhi` would be worth knowing, but do not read the leaderboard as if all 20
+contributed.
 
 ## Three failure modes worth knowing
 
