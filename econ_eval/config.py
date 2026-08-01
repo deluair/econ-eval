@@ -57,6 +57,6 @@ def build_models(only: set[str] | None = None):
 
 
 def build_judge():
-    from econ_eval.adapters.opus import FableJudgeAdapter
+    from econ_eval.adapters.opus import JudgeAdapter
 
-    return FableJudgeAdapter()
+    return JudgeAdapter()

@@ -9,6 +9,7 @@ and left untouched. Usage:
 from __future__ import annotations
 
 import json
+import os
 import sqlite3
 import sys
 from concurrent.futures import ThreadPoolExecutor
@@ -20,8 +21,11 @@ from econ_eval import config
 from econ_eval.graders import judge as judge_mod
 from econ_eval.models import Task
 
-WORKERS = 3
-DONE_PREFIX = "fable-judge"
+WORKERS = int(os.environ.get("REGRADE_WORKERS", "16"))
+# Rows already carrying this marker are skipped, which makes the pass
+# resumable. Changing judges means changing this string, so every row is
+# regraded and no two judges ever share a scoreboard.
+DONE_PREFIX = "opus5-judge"
 
 
 def main(argv: list[str]) -> int:

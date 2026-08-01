@@ -75,6 +75,6 @@ class OpusAdapter:
         )
 
 
-def FableJudgeAdapter() -> OpusAdapter:
-    """Fable 5 as judge, same CLI subscription path as opus (not OpenRouter)."""
-    return OpusAdapter(name="fable", model="claude-fable-5", timeout_s=600)
+def JudgeAdapter() -> OpusAdapter:
+    """Opus 5 as judge, same CLI subscription path as the opus contestant."""
+    return OpusAdapter(name="judge", model="claude-opus-5", timeout_s=600)

@@ -7,106 +7,155 @@ Ten models answer the same 20 tasks, five times each (1,000 completions), across
 four tracks: quantitative trade/macro computation, economic reasoning, domain
 coding, and policy writing. Objective tracks are graded deterministically
 (numeric tolerance, sandboxed code execution). Subjective tracks are rubric
-graded by a model judge. Every score carries a bootstrap 95% CI, and every
-model is compared to Claude Opus 4.8 with an exact binomial sign test.
+graded by Claude Opus 5. Every score carries a bootstrap 95% CI, and every
+challenger is compared to Claude Opus 4.8 with an exact binomial sign test.
 
-Run of 2026-07-31/08-01. Objective tracks are complete; the subjective half is
-mid-regrade (see [Status](#status)).
+Run completed 2026-08-01. All 1,000 completions graded, all 500 subjective rows
+scored by a single judge.
 
-## Headline result
+## Leaderboard
 
-On the objective half of the benchmark, **six of the ten models score a perfect
-1.000, and the five that are not Opus cost 8x to 539x less per correct answer.**
+| # | model | score | 95% CI | total cost | cost per correct | vs Opus |
+|---|---|---|---|---|---|---|
+| 1 | claude-opus-4-8 | 0.979 | [0.951, 0.997] | $7.8015 | $0.078015 | reference |
+| 2 | moonshotai/kimi-k3 | 0.975 | [0.949, 0.996] | $2.5008 | $0.025008 | tied (p=1.000) |
+| 3 | google/gemini-3.6-flash | 0.956 | [0.918, 0.988] | $1.1091 | $0.011091 | tied (p=0.125) |
+| 4 | openai/gpt-5.6-luna | 0.947 | [0.905, 0.984] | $0.0257 | $0.000257 | tied (p=0.125) |
+| 5 | x-ai/grok-4.5 | 0.940 | [0.895, 0.980] | $0.4953 | $0.004953 | loses (p=0.016) |
+| 6 | deepseek/deepseek-v4-flash-0731 | 0.934 | [0.889, 0.975] | $0.0332 | $0.000332 | loses (p=0.008) |
+| 7 | minimax/minimax-m3 | 0.922 | [0.866, 0.969] | $0.1974 | $0.002035 | loses (p=0.004) |
+| 8 | nvidia/nemotron-3-ultra-550b-a55b | 0.899 | [0.809, 0.973] | $0.2210 | $0.002377 | loses (p=0.031) |
+| 9 | glm-5.2 | 0.873 | [0.761, 0.949] | $0.0388 | $0.000408 | loses (p=0.002) |
+| 10 | meta-llama/llama-4-maverick | 0.864 | [0.783, 0.934] | $0.0139 | $0.000143 | loses (p=0.002) |
 
-| model | objective score | 95% CI | total cost | cost per correct |
+Score is the mean over 20 tasks of each task's mean over 5 samples. Cost covers
+all 100 completions per model. "vs Opus" is an exact two-sided sign test on
+per-task means, alpha = 0.05.
+
+**The headline: `gpt-5.6-luna` is statistically indistinguishable from Opus 4.8
+at 1/304th the cost per correct answer.** It scores 0.947 against Opus's 0.979,
+and with 20 tasks that gap does not clear significance (p = 0.125). Three models
+survive the comparison: Kimi K3, Gemini 3.6 Flash, and Luna. Six do not.
+
+The cost column is not like for like, and correcting it does not change the
+conclusion. Opus runs through the `claude` CLI, so its `input_tokens` carry the
+entire Claude Code harness context: 8,287 tokens per call against a 101-token
+median for the raw API models. Substituting that median and keeping Opus's real
+output tokens gives **$3.7088 total, $0.037088 per correct**, still 144x Luna.
+Both figures are reported so neither flatters the result.
+
+## Which track separates the models
+
+Not all four tracks carry information. Spread between best and worst model:
+
+| track | best | worst | spread | verdict |
 |---|---|---|---|---|
-| claude-opus-4-8 | **1.000** | [1.000, 1.000] | $2.8501 | $0.057003 |
-| deepseek/deepseek-v4-flash-0731 | **1.000** | [1.000, 1.000] | $0.0099 | $0.000199 |
-| google/gemini-3.6-flash | **1.000** | [1.000, 1.000] | $0.3437 | $0.006873 |
-| moonshotai/kimi-k3 | **1.000** | [1.000, 1.000] | $0.3494 | $0.006988 |
-| openai/gpt-5.6-luna | **1.000** | [1.000, 1.000] | $0.0053 | $0.000106 |
-| x-ai/grok-4.5 | **1.000** | [1.000, 1.000] | $0.1255 | $0.002509 |
-| nvidia/nemotron-3-ultra-550b-a55b | 0.980 | [0.920, 1.000] | $0.1056 | $0.002154 |
-| meta-llama/llama-4-maverick | 0.960 | [0.860, 1.000] | $0.0059 | $0.000122 |
-| minimax/minimax-m3 | 0.960 | [0.880, 1.000] | $0.0558 | $0.001163 |
-| glm-5.2 | 0.900 | [0.700, 1.000] | $0.0056 | $0.000124 |
+| coding | 1.000 | 0.960 | 0.040 | saturated, near-useless for ranking |
+| reasoning | 1.000 | 0.828 | 0.172 | mild separation |
+| quantitative | 1.000 | 0.800 | 0.200 | separation from one task |
+| writing | 0.914 | 0.638 | 0.276 | **the discriminating track** |
 
-Score is the mean over tasks of each task's mean over 5 samples, on the 10
-objective tasks (500 graded completions). Cost covers those completions only.
-No model beats or loses to Opus at p < 0.05 on this half: the sign test returns
-p >= 0.5 for all nine challengers, because the objective tasks are saturated.
-**Read that as "these tasks no longer discriminate at the top", not as
-"the models are equal".** See [Task difficulty](#task-difficulty-is-the-binding-constraint).
+Nine of ten models score a perfect 1.000 on coding, and six do on
+quantitative. If this benchmark were objective-only it would report a ten-way
+tie and no significant differences anywhere, which is exactly what it reported
+before the subjective tracks were graded. **The ranking above exists because of
+the writing and reasoning tracks.**
 
-The cost column is not like for like. Opus is called through the `claude` CLI,
-so its `input_tokens` include the entire Claude Code harness context: 10,335
-tokens per call, against 88 to 291 for the raw API models. Substituting the
-median API prompt size (114 tokens) and keeping Opus's real output tokens puts
-Opus at **$0.2948 total, $0.005897 per correct**, still 56x the cheapest perfect
-scorer. Both figures are reported so neither flatters the conclusion.
+### Per-track detail
 
-## Latency and verbosity
-
-Cost is not the only axis on which the perfect scorers differ. Mean wall-clock
-latency per call and mean output tokens per call, objective tasks only:
-
-| model | mean latency (s) | output tokens per call |
-|---|---|---|
-| moonshotai/kimi-k3 | 14.4 | 432 |
-| minimax/minimax-m3 | 11.8 | 869 |
-| deepseek/deepseek-v4-flash-0731 | 9.0 | 650 |
-| claude-opus-4-8 | 6.9 | 213 |
-| x-ai/grok-4.5 | 4.7 | 321 |
-| google/gemini-3.6-flash | 4.6 | 897 |
-| meta-llama/llama-4-maverick | 4.5 | 123 |
-| nvidia/nemotron-3-ultra-550b-a55b | 4.0 | 567 |
-| openai/gpt-5.6-luna | 3.6 | 161 |
-| glm-5.2 | 2.8 | 24 |
-
-Among the five non-Opus perfect scorers, `gpt-5.6-luna` wins on every axis at
-once: tied top score, cheapest per correct answer, and fastest. `kimi-k3` gets
-the same score for 66x the cost and 4x the latency. Verbosity drives the cost
-spread more than headline price does: `gemini-3.6-flash` emits 897 output
-tokens per call against Luna's 161, which is most of why it lands 65x higher
-per correct answer despite being only 12x more expensive per token.
-
-Latencies were measured with up to ten evals running in parallel, so treat them
-as relative, not as clean single-stream benchmarks.
-
-## Where the cheap models actually break
-
-Four models dropped points, and the failures are three distinct kinds. This is
-the useful signal, not the leaderboard.
-
-| model | task | fails | grader detail | kind of failure |
+| model | quantitative | reasoning | coding | writing |
 |---|---|---|---|---|
-| glm-5.2 | quant-rca-6109 | 5/5 | got 6.58, ref 65.36 | order-of-magnitude slip |
-| meta-llama/llama-4-maverick | quant-rca-6109 | 2/5 | got 64.09, ref 65.36 | precision, 1.94% off a 0.5% tolerance |
-| minimax/minimax-m3 | quant-rca-6109 | 1/5 | no number found | format, no parsable answer |
-| nvidia/nemotron-3-ultra-550b-a55b | quant-rca-6109 | 1/5 | no number found | format, no parsable answer |
-| minimax/minimax-m3 | code-cagr | 1/5 | `NameError: name 'cagr' is not defined` | code, function never defined |
+| claude-opus-4-8 | 1.000 | 1.000 | 1.000 | **0.914** |
+| moonshotai/kimi-k3 | 1.000 | 1.000 | 1.000 | 0.900 |
+| google/gemini-3.6-flash | 1.000 | 0.970 | 1.000 | 0.852 |
+| openai/gpt-5.6-luna | 1.000 | 0.926 | 1.000 | 0.862 |
+| x-ai/grok-4.5 | 1.000 | 0.934 | 1.000 | 0.826 |
+| deepseek/deepseek-v4-flash-0731 | 1.000 | 0.932 | 1.000 | 0.806 |
+| minimax/minimax-m3 | 0.960 | 0.892 | 0.960 | 0.876 |
+| nvidia/nemotron-3-ultra-550b-a55b | 0.960 | 1.000 | 1.000 | **0.638** |
+| glm-5.2 | 0.800 | 0.872 | 1.000 | 0.820 |
+| meta-llama/llama-4-maverick | 0.920 | 0.828 | 1.000 | 0.708 |
 
-`quant-rca-6109` accounts for nine of the ten objective failures. It asks for a
-Balassa RCA from four raw trade values, a two-ratio calculation with no
-intermediate scaffolding:
+## Three failure modes worth knowing
+
+### 1. Bangla is where the cheap models actually fall over
+
+Nemotron 3 Ultra scores a perfect 1.000 on reasoning and coding, then collapses
+to 0.638 on writing. The collapse is entirely linguistic: 0.75 to 0.84 on the
+three English writing tasks, 0.40 on both Bangla ones. Mean score across the two
+Bangla tasks:
+
+| model | Bangla |
+|---|---|
+| claude-opus-4-8 | 0.955 |
+| openai/gpt-5.6-luna | 0.920 |
+| moonshotai/kimi-k3 | 0.895 |
+| google/gemini-3.6-flash | 0.895 |
+| minimax/minimax-m3 | 0.885 |
+| deepseek/deepseek-v4-flash-0731 | 0.870 |
+| x-ai/grok-4.5 | 0.855 |
+| glm-5.2 | 0.805 |
+| meta-llama/llama-4-maverick | 0.685 |
+| nvidia/nemotron-3-ultra-550b-a55b | 0.400 |
+
+Nemotron does emit Bangla script, so this is not a refusal or an
+encoding failure. It emits *worse* Bangla: 71% Bangla characters against a
+consistent 85% for everyone else, the rest being transliterated English where a
+Bangla term exists, which the rubric explicitly penalises. Its five samples
+score 0.4, 0.2, 0.4, 0.4, 0.6, so the weakness is consistent rather than noise.
+For Bangla-language policy work, the cheap tier is not interchangeable and the
+English scores will not warn you.
+
+### 2. A confident order-of-magnitude error
+
+Nine of the ten objective failures land on one task, `quant-rca-6109`, which
+asks for a Balassa RCA from four raw trade values with no intermediate
+scaffolding:
 
 > RCA = (9,288,364.183 / 65,871,533.413) / (52,091,992.664 / 24,145,991,347.414) = 65.36
 
-GLM 5.2 returns 6.58 on all five samples, low by a factor of 9.93. It is not
-noise: the model reliably drops a decade somewhere in the nested division while
-producing confident, well-formatted output. That is the failure mode that
-matters for economics work, because nothing downstream flags it. This
-reproduces a finding from the earlier two-model run (commit 52c09a7, "GLM fails
-inline RCA 0/5").
+| model | task | fails | detail | kind |
+|---|---|---|---|---|
+| glm-5.2 | quant-rca-6109 | 5/5 | got 6.58, ref 65.36 | order-of-magnitude slip |
+| meta-llama/llama-4-maverick | quant-rca-6109 | 2/5 | got 64.09 | precision, 1.94% against a 0.5% tolerance |
+| minimax/minimax-m3 | quant-rca-6109 | 1/5 | no number found | format |
+| nvidia/nemotron-3-ultra | quant-rca-6109 | 1/5 | no number found | format |
+| minimax/minimax-m3 | code-cagr | 1/5 | `NameError: name 'cagr' is not defined` | code |
 
-Llama's 64.09 is a different animal: arithmetically close, and it would pass a
-2% tolerance. Whether that counts as a failure is a policy choice this
-benchmark makes explicit (0.5%), not a fact about the model.
+GLM 5.2 returns 6.58 on all five samples, low by a factor of 9.93, while
+producing confident well-formatted output. That is the failure mode that
+matters for economics work: nothing downstream flags it. This reproduces a
+finding from the earlier two-model run (commit 52c09a7). Llama's 64.09 is a
+different animal, arithmetically close and passing at a 2% tolerance; whether
+it counts as a failure is a policy choice this benchmark makes explicit.
+
+### 3. Verbosity, not headline price, drives cost
+
+| model | mean latency (s) | output tokens per call |
+|---|---|---|
+| moonshotai/kimi-k3 | 48.7 | 1,635 |
+| claude-opus-4-8 | 22.5 | 1,463 |
+| deepseek/deepseek-v4-flash-0731 | 19.5 | 1,126 |
+| minimax/minimax-m3 | 17.7 | 1,586 |
+| x-ai/grok-4.5 | 12.5 | 731 |
+| google/gemini-3.6-flash | 7.4 | 1,462 |
+| openai/gpt-5.6-luna | 5.4 | 414 |
+| glm-5.2 | 5.4 | 153 |
+| nvidia/nemotron-3-ultra-550b-a55b | 4.8 | 597 |
+| meta-llama/llama-4-maverick | 4.8 | 152 |
+
+Gemini 3.6 Flash costs 43x more per correct answer than Luna while being only
+12.5x more expensive per output token. The remainder is verbosity: 1,462 output
+tokens per call against Luna's 414. Kimi K3 buys its statistical tie with Opus
+at 3.1x less cost, but at 9x Luna's latency and the slowest wall clock in the
+field. GLM 5.2 and Llama 4 Maverick are the terse ones at ~150 tokens per call,
+which is most of why they are the cheapest per correct answer despite ranking
+9th and 10th on quality.
+
+Latencies were measured with up to ten evals running in parallel, so treat them
+as relative rather than clean single-stream numbers.
 
 ## Models
-
-Nine contestants plus Opus. Prices are USD per 1M tokens, read from the
-OpenRouter catalog API on 2026-07-31 and stored in `econ_eval/config.py`.
 
 | adapter | model id | access path | $/M in | $/M out |
 |---|---|---|---|---|
@@ -121,21 +170,23 @@ OpenRouter catalog API on 2026-07-31 and stored in `econ_eval/config.py`.
 | grok | `x-ai/grok-4.5` | OpenRouter | 2.00 | 6.00 |
 | llama | `meta-llama/llama-4-maverick` | OpenRouter | 0.20 | 0.80 |
 
-Two notes on selection. `kimi-k3` at $3.00/$15.00 is not a cheap model and is
-included only because it was requested by name. `meta-llama/llama-4-maverick`
-is the newest Meta model in the catalog; there is no Llama 5.
+Prices are USD per 1M tokens, read from the OpenRouter catalog API on
+2026-07-31 and stored in `econ_eval/config.py`. Two notes on selection:
+`kimi-k3` at $3.00/$15.00 is not a cheap model and is included only because it
+was requested by name, and `llama-4-maverick` is the newest Meta model in the
+catalog, since there is no Llama 5.
 
 ## Task suite
 
 Twenty tasks, five per track, 5 samples each. Every task carries a `source`
 field and the loader refuses to construct one without it.
 
-| track | tasks | grader | how it is scored |
-|---|---|---|---|
-| quantitative | 5 | `numeric` | parse the `ANSWER:` line, compare to a reference within a per-task relative tolerance (0.5% for RCA) |
-| coding | 5 | `code_exec` | execute the returned code in a sandbox against assertions |
-| reasoning | 5 | `judge` | model judge scores each rubric point 0 or 1 |
-| writing | 5 | `judge` | same, including two Bangla-language tasks |
+| track | grader | how it is scored |
+|---|---|---|
+| quantitative | `numeric` | parse the `ANSWER:` line, compare to a reference within a per-task relative tolerance (0.5% for RCA) |
+| coding | `code_exec` | execute the returned code in a sandbox against assertions |
+| reasoning | `judge` | model judge scores each rubric point 0 or 1 |
+| writing | `judge` | same, including two Bangla-language tasks |
 
 ```
 quant-cotton-share      quant-hs6109-sum     quant-rca-6109
@@ -151,8 +202,8 @@ write-policy-brief      write-tight-constraints
 
 Reference values are computed by `scripts/build_references.py` from primary
 data (BACI via the TradeWeave parquet tree, IMF, FRED) and verified before
-commit. No fabricated values. The RCA reference above was re-derived from its
-four inputs during this run and matched to 4 decimal places.
+commit. No fabricated values. The RCA reference was re-derived from its four
+inputs during this run and matched to four decimal places.
 
 Task files are effectively append-only: editing a prompt invalidates every
 cached completion for it. Add tasks, do not rewrite them.
@@ -160,23 +211,39 @@ cached completion for it. Add tasks, do not rewrite them.
 ## Grading
 
 **Objective tracks** need no judge. `numeric` extracts the answer and applies a
-relative tolerance; a missing or unparsable number scores 0, which is why
-"no number found" appears as a failure mode. `code_exec` runs the model's code
+relative tolerance; a missing or unparsable number scores 0, which is why "no
+number found" appears as a failure mode. `code_exec` runs the model's code
 against assertions and scores 0 on any exception.
 
 **Subjective tracks** are rubric graded: the judge sees the task, the answer,
-and a numbered rubric, and returns a JSON map of rubric index to 0 or 1. The
-score is the fraction of rubric points hit; pass is >= 0.5. The judge never
-sees which model produced an answer, and rubric grading is absolute rather than
+and a numbered rubric, and returns a JSON map of rubric index to 0 or 1. Score
+is the fraction of rubric points hit; pass is >= 0.5. The judge never sees which
+model produced an answer, and rubric grading is absolute rather than
 comparative, so there is no position bias to cancel. A pairwise, order-swapped
-comparator exists in `econ_eval/graders/judge.py` for A/B use.
+comparator exists in `econ_eval/graders/judge.py` for A/B use. A representative
+rubric, from `write-bangla-formal`:
 
-The judge is **Claude Fable 5**, called through the same `claude` CLI as the
-Opus contestant. It replaced DeepSeek V4 Flash on 2026-07-31. One caveat stated
-plainly: an Anthropic model judging an Anthropic contestant is not a neutral
-third party, and the Opus subjective scores should be read with that in mind.
-All subjective rows are graded by a single judge or the comparison is void,
-which is exactly what the current regrade enforces.
+```
+0  Written in fluent, grammatically correct Bangla
+1  Formal administrative / policy-memo register (not casual, not op-ed)
+2  Uses correct Bangla economic terms rather than transliterated English
+3  Recommends one concrete, specific diversification step
+4  Coherent and within 90 to 120 words
+```
+
+The judge is **Claude Opus 5** (`claude-opus-5`), called through the same
+`claude` CLI as the Opus 4.8 contestant. Two caveats stated plainly:
+
+1. **The judge is not neutral.** Opus 5 grading Opus 4.8 is same-family
+   refereeing, and Opus 4.8's subjective scores should be read with that in
+   mind. Its top-line lead comes from the writing track, which is judged. The
+   objective tracks are immune, being deterministically graded, and there Opus
+   ties five other models exactly.
+2. **All 500 subjective rows are graded by one judge.** Judges are not
+   interchangeable, so mixing them would void cross-model comparison. When the
+   judge changed, every row was regraded, not just the ungraded ones.
+   `DONE_PREFIX` in `scripts/regrade_judge.py` enforces this: changing judges
+   means changing that string, which invalidates every existing grade.
 
 ## Statistics
 
@@ -188,34 +255,15 @@ which is exactly what the current regrade enforces.
   than across repeats of one task.
 - **Head to head**: exact two-sided binomial sign test on per-task mean
   differences, ties dropped, alpha = 0.05. The harness refuses to name a winner
-  above that threshold. With 10 objective tasks and near-ceiling scores, no
-  comparison clears it, and the report says so rather than implying a ranking.
+  above that threshold, which is why three models are reported as tied with
+  Opus rather than ranked below it.
 
 Pure numpy, no scipy. Deterministic given the seed.
 
-## Status
-
-| half | rows | state |
-|---|---|---|
-| objective (quantitative, coding) | 500 | complete, reported above |
-| subjective (reasoning, writing) | 500 | **not reportable yet**: 198 rows regraded by Fable, 302 still carry DeepSeek scores |
-
-All 1,000 completions are generated and cached; no model needs to be called
-again. The regrade stalled because the Claude subscription ran out of usage
-credits mid-pass (HTTP 429, `out_of_credits`), and the judge runs through that
-same CLI. Mixed-judge scores are not comparable across models, so the
-subjective tracks are withheld rather than published with a footnote.
-
-To finish once credits are available:
-
-```bash
-uv run python scripts/regrade_judge.py \
-  ../../../results/transcripts-2026-06-22.jsonl results/transcripts-2026-07-31-*.jsonl
-uv run python -m econ_eval --date <date> report
-```
-
-The script is resumable: it skips rows already marked `fable-judge` in
-`scores.detail` and regrades only the remaining 302.
+With 20 tasks, the sign test needs a challenger to lose 7 or more decided tasks
+without winning any to reach p < 0.05. That is a coarse instrument: it cannot
+distinguish "as good as Opus" from "not yet proven worse". Read the three ties
+as the latter.
 
 ## Setup
 
@@ -223,7 +271,7 @@ The script is resumable: it skips rows already marked `fable-judge` in
 make setup                      # uv sync
 export OPENROUTER_API_KEY=...   # the 8-model fleet (OPENAI_API_KEY also accepted)
 export ZAI_API_KEY=...          # GLM 5.2 direct
-# Opus and the Fable judge run through the `claude` CLI under your Claude Code
+# Opus and the Opus 5 judge run through the `claude` CLI under your Claude Code
 # login, no API key needed.
 ```
 
@@ -240,6 +288,8 @@ make test     # 47 unit tests, no live calls
 uv run python -m econ_eval --date <date> eval -n 5 --models grok
 # report a subset of tracks
 uv run python -m econ_eval --date <date> report --tracks quantitative,coding
+# regrade every judge row after changing judges (16 workers by default)
+REGRADE_WORKERS=16 uv run python scripts/regrade_judge.py results/transcripts-*.jsonl
 ```
 
 The runner is resumable and keyed on (task, model, sample index): rerunning
@@ -248,28 +298,32 @@ in git), transcripts to `results/transcripts-*.jsonl` (gitignored, backed up to
 Google Drive by `backup.sh`).
 
 Running one process per model in parallel is safe; SQLite is opened with
-`busy_timeout=60000`. The `claude` CLI is the exception, it exits non-zero under
-concurrency, so the judge adapter retries three times with backoff and the
-regrade script runs at 3 workers.
+`busy_timeout=60000`. Sixteen concurrent `claude` CLI calls are also fine
+(roughly 95 judge rows per minute against 6 at three workers). Note that the
+CLI reports credit exhaustion as either exit 1 with empty stderr or exit 0 with
+an `api_error` envelope, and the first form is easy to misread as a concurrency
+fault. The tell is that a credit wall fails every retry instantly.
 
-## Task difficulty is the binding constraint
+## What this benchmark cannot yet tell you
 
-Six models at exactly 1.000 is a statement about the benchmark, not about the
-models. These tasks were built to be verifiable against primary data, and
-verifiable turned out to correlate with easy: compute-over-provided-inputs and
-deterministic coding are close to solved at every price point tested.
+Coding is saturated and quantitative is close, so most of the ranking rests on
+two judged tracks and a single arithmetic task. Concretely:
 
-The one task that separates the field, `quant-rca-6109`, does it by removing
-scaffolding rather than by adding difficulty. It hands over four raw numbers
-and a formula and asks for one nested division. That is what caught GLM's
-factor-of-10 error and Llama's precision drift.
+- **The objective tasks are too easy.** They were built to be verifiable
+  against primary data, and verifiable correlated with easy. The one task that
+  separates the field does it by removing scaffolding, not by adding
+  difficulty.
+- **The judged tracks carry the ranking, and the judge is related to one
+  contestant.** A neutral judge with sufficient quota would strengthen every
+  subjective conclusion here.
+- **20 tasks is a coarse sign test.** Three ties with Opus mean "not proven
+  worse", not "proven equal".
 
-The next tasks worth adding follow that pattern: multi-step chains where an
+The next tasks worth adding follow the RCA pattern: multi-step chains where an
 early unit error propagates, netting and aggregation traps, questions whose
-correct answer is "the data does not support this", and reasoning that has to
-survive a hostile reading. Until then, treat the objective half as a floor test
-that most current models pass, and expect the discrimination to come from the
-subjective tracks.
+correct answer is "the data does not support this", and more Bangla work, since
+that is where the spread is widest and where the English scores are actively
+misleading.
 
 ## Adding tasks
 

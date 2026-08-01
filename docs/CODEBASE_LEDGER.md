@@ -16,10 +16,11 @@ any audit; write findings back here, dated.
   backed up to `$GDRIVE/econ-eval` via backup.sh.
 - Parallelism: one `eval --models <name>` process per model is safe; the
   runner sets `PRAGMA busy_timeout=60000` (added 2026-07-31).
-- Judge (since 2026-07-31): Claude Fable 5 via the CLI, per user instruction
-  ("use yourself as judge, fable from here", "judge not from openrouter").
-  Before that: DeepSeek V4 flash. Caveat: Anthropic model judging an Anthropic
-  contestant is not neutral; noted in README.
+- Judge: Claude Opus 5 (`claude-opus-5`) via the CLI since 2026-08-01. History:
+  DeepSeek V4 flash -> Fable 5 (2026-07-31, "judge not from openrouter") ->
+  Opus 5 (user instruction, after the Fable 7-day quota was exhausted). Every
+  judge switch requires regrading ALL judge rows, not just ungraded ones;
+  `DONE_PREFIX` in regrade_judge.py enforces this by design.
 
 ## Data/unit conventions
 
@@ -35,25 +36,22 @@ any audit; write findings back here, dated.
   CLI's default model was. Pinned to `claude-opus-4-8` explicitly. Historical
   opus rows (June, July 30 runs) were generated when the CLI default was Opus
   4.8, so cached rows are correctly labeled.
-- 2026-07-31: judge switched DeepSeek -> Fable mid-project. All judge-track
-  rows re-graded by Fable from transcripts (scripts/regrade_judge.py) so no
-  mixed-judge scores survive. Opus/GLM completions for the 4 judge tasks added
-  2026-07-30 (reason-passthrough-netting, reason-rca-interpretation,
-  write-bangla-formal, write-tight-constraints) could not be re-graded from
-  transcripts (that run's transcripts live only on the machine that ran it,
-  never backed up) and were regenerated fresh instead. Re-graded rows carry a
-  "fable-judge" prefix in scores.detail.
+- 2026-08-01: all 500 judge rows regraded by Opus 5 in one pass, so the
+  subjective tracks carry a single judge. Rows carry an "opus5-judge" prefix in
+  scores.detail. The earlier partial Fable pass (198 rows) was fully
+  overwritten; no mixed-judge scores survive.
+- 2026-07-31: Opus/GLM completions for the 4 judge tasks added 2026-07-30
+  (reason-passthrough-netting, reason-rca-interpretation, write-bangla-formal,
+  write-tight-constraints) could not be regraded from transcripts (that run's
+  transcripts live only on the machine that ran it, never backed up) and were
+  regenerated fresh instead.
 
 ## Open issues
 
-- 2026-08-01, HIGH: subjective tracks (reasoning, writing) carry MIXED JUDGE
-  scores and must not be reported. 198 of 500 rows regraded by Fable, 302 still
-  DeepSeek. The regrade stalled because the Claude subscription hit its 7-day
-  limit with overage disabled (`out_of_credits`, HTTP 429), resetting
-  2026-08-03 12:00 UTC. All 1,000 completions are cached, so finishing costs
-  judge calls only. Resume with
-  `uv run python scripts/regrade_judge.py <transcripts...>`; the script skips
-  rows already marked `fable-judge` in scores.detail.
+- 2026-08-01, LOW: the judge (Opus 5) and one contestant (Opus 4.8) are from
+  the same family, so subjective scores for the opus row are not independently
+  refereed. Objective tracks are immune (deterministic graders). Stated in the
+  README; revisit if a neutral judge with sufficient quota becomes available.
 - 2026-08-01, LOW: objective tracks are saturated (6 of 10 models at exactly
   1.000, no sign test clears alpha=0.05). Discrimination now comes from one
   task, quant-rca-6109. Add multi-step tasks where an early unit error
@@ -61,9 +59,13 @@ any audit; write findings back here, dated.
 
 ## Known-intentional quirks
 
-- The `claude` CLI exits non-zero under concurrent invocation, and returns
-  exit 0 with an `api_error` result envelope when out of credits. OpusAdapter
-  retries 3x with backoff (2026-08-01); the regrade script runs 3 workers, not 6.
+- The `claude` CLI signals credit exhaustion two different ways: exit 1 with
+  EMPTY stderr, or exit 0 with an `api_error` result envelope carrying HTTP
+  429. The empty-stderr form is easy to misread as a concurrency fault. It is
+  not: 16 concurrent CLI calls run fine (~95 judge rows/min against ~6/min at
+  3 workers). Tell them apart by whether retries make progress; a credit wall
+  fails every retry instantly with zero rows done. Worker count is set by
+  `REGRADE_WORKERS` (default 16).
 - Task files are append-only so cached completions stay valid; never edit an
   existing task prompt without wiping its cached rows.
 - June 2026 transcripts (12 tasks) are the only local record of the June
