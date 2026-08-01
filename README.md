@@ -298,11 +298,14 @@ in git), transcripts to `results/transcripts-*.jsonl` (gitignored, backed up to
 Google Drive by `backup.sh`).
 
 Running one process per model in parallel is safe; SQLite is opened with
-`busy_timeout=60000`. Sixteen concurrent `claude` CLI calls are also fine
-(roughly 95 judge rows per minute against 6 at three workers). Note that the
-CLI reports credit exhaustion as either exit 1 with empty stderr or exit 0 with
-an `api_error` envelope, and the first form is easy to misread as a concurrency
-fault. The tell is that a credit wall fails every retry instantly.
+`busy_timeout=60000`. Sixteen concurrent `claude` CLI calls are also fine:
+measured by wall clock, the judge regrade ran 402 rows in 208s at 16 workers
+(116 rows/min) against 98 rows in 231s at 3 workers (25.5 rows/min). That is
+4.6x for 5.3x the workers, so scaling is sublinear and per-call CLI startup
+dominates. Note that the CLI reports credit exhaustion as either exit 1 with
+empty stderr or exit 0 with an `api_error` envelope, and the first form is easy
+to misread as a concurrency fault. The tell is that a credit wall fails every
+retry instantly with zero rows completed.
 
 ## What this benchmark cannot yet tell you
 

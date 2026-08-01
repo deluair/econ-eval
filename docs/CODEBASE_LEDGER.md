@@ -62,10 +62,13 @@ any audit; write findings back here, dated.
 - The `claude` CLI signals credit exhaustion two different ways: exit 1 with
   EMPTY stderr, or exit 0 with an `api_error` result envelope carrying HTTP
   429. The empty-stderr form is easy to misread as a concurrency fault. It is
-  not: 16 concurrent CLI calls run fine (~95 judge rows/min against ~6/min at
-  3 workers). Tell them apart by whether retries make progress; a credit wall
-  fails every retry instantly with zero rows done. Worker count is set by
-  `REGRADE_WORKERS` (default 16).
+  not: 16 concurrent CLI calls run fine. Tell them apart by whether retries
+  make progress; a credit wall fails every retry instantly with zero rows done.
+- Regrade throughput, measured 2026-08-01 by wall clock (`REGRADE_WORKERS`):
+  3 workers = 98 rows in 231s (25.5 rows/min); 16 workers = 402 rows in 208s
+  (116 rows/min). That is 4.6x, NOT the 5.3x that worker count alone implies:
+  scaling is sublinear because per-call CLI startup dominates. Do not quote a
+  linear projection. Default is 16.
 - Task files are append-only so cached completions stay valid; never edit an
   existing task prompt without wiping its cached rows.
 - June 2026 transcripts (12 tasks) are the only local record of the June
