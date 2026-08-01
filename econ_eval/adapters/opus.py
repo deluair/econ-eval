@@ -13,6 +13,7 @@ import subprocess
 import time
 
 MODEL = "claude-opus-4-8"
+RETRIES = 3
 
 
 def _parse(stdout: str):
@@ -38,24 +39,31 @@ def _parse(stdout: str):
 
 
 class OpusAdapter:
-    name = "opus"
-    model = MODEL
-
-    def __init__(self, cli: str = "claude", timeout_s: int = 300) -> None:
+    def __init__(self, cli: str = "claude", timeout_s: int = 300,
+                 name: str = "opus", model: str = MODEL) -> None:
         self.cli = cli
         self.timeout_s = timeout_s
+        self.name = name
+        self.model = model
 
     def run(self, prompt: str) -> "Completion":
         from econ_eval.models import Completion
 
         t0 = time.monotonic()
-        proc = subprocess.run(
-            [self.cli, "-p", prompt, "--output-format", "json"],
-            capture_output=True, text=True, timeout=self.timeout_s,
-        )
+        # The CLI intermittently exits non-zero under concurrent invocation, so
+        # a failed call is retried with backoff before giving up.
+        for attempt in range(RETRIES):
+            proc = subprocess.run(
+                [self.cli, "-p", prompt, "--output-format", "json", "--model", self.model],
+                capture_output=True, text=True, timeout=self.timeout_s,
+            )
+            if proc.returncode == 0:
+                break
+            if attempt == RETRIES - 1:
+                raise RuntimeError(
+                    f"claude CLI failed ({proc.returncode}): {proc.stderr[:500]}")
+            time.sleep(10 * (attempt + 1))
         latency = time.monotonic() - t0
-        if proc.returncode != 0:
-            raise RuntimeError(f"claude CLI failed ({proc.returncode}): {proc.stderr[:500]}")
         text, usage = _parse(proc.stdout)
         return Completion(
             text=text,
@@ -65,3 +73,8 @@ class OpusAdapter:
             model=self.model,
             raw={"usage": usage},
         )
+
+
+def JudgeAdapter() -> OpusAdapter:
+    """Opus 5 as judge, same CLI subscription path as the opus contestant."""
+    return OpusAdapter(name="judge", model="claude-opus-5", timeout_s=600)

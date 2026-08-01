@@ -35,6 +35,7 @@ def grade_sample(task: Task, text: str, judge) -> Grade:
 def _connect(db_path: Path) -> sqlite3.Connection:
     db_path.parent.mkdir(parents=True, exist_ok=True)
     con = sqlite3.connect(db_path)
+    con.execute("PRAGMA busy_timeout=60000")
     con.executescript(SCHEMA)
     return con
 
