@@ -73,3 +73,7 @@ any audit; write findings back here, dated.
   existing task prompt without wiping its cached rows.
 - June 2026 transcripts (12 tasks) are the only local record of the June
   opus/glm completions; keep `results/transcripts-2026-06-22.jsonl` backed up.
+
+## Branch cleanup
+
+2026-08-10 branch cleanup (Claude): worktree-openrouter-cheap-models (tip 106e732) deleted local+remote without re-merging: PR #2 is MERGED (squash-merge, so git ancestry did not show it landed). Worktree .claude/worktrees/openrouter-cheap-models was clean: unlocked and removed. Goal state reached: only main remains local and on origin.
