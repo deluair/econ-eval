@@ -13,10 +13,13 @@ DEFAULT_SAMPLES = 5
 # Rough per-1M-token prices (USD) for the cost-per-correct figure.
 # Opus 4.8 from the model catalog; GLM is the cheap z.ai consult tier.
 # OpenRouter prices read from https://openrouter.ai/api/v1/models on 2026-07-31.
+# deepseek-flash (V4.1 Flash): official off-peak cache-miss price from
+# api-docs.deepseek.com/quick_start/pricing on 2026-09-10 (peak is 2x).
 PRICES = {
     "claude-opus-4-8": {"in": 5.0, "out": 25.0},
     "glm-5.2": {"in": 0.6, "out": 2.2},
     "deepseek-v4-flash": {"in": 0.3, "out": 1.1},
+    "deepseek-flash": {"in": 0.15, "out": 0.6},
     "google/gemini-3.6-flash": {"in": 1.5, "out": 7.5},
     "deepseek/deepseek-v4-flash-0731": {"in": 0.14, "out": 0.28},
     "moonshotai/kimi-k3": {"in": 3.0, "out": 15.0},
@@ -42,10 +45,10 @@ OPENROUTER_MODELS = {
 
 def build_models(only: set[str] | None = None):
     from econ_eval.adapters.opus import OpusAdapter
-    from econ_eval.adapters.glm import GLMAdapter
+    from econ_eval.adapters.glm import GLMAdapter, DeepSeekFlashAdapter
     from econ_eval.adapters.openrouter import OpenRouterAdapter
 
-    models = {"opus": OpusAdapter(), "glm": GLMAdapter()}
+    models = {"opus": OpusAdapter(), "glm": GLMAdapter(), "deepseek-flash": DeepSeekFlashAdapter()}
     for name, model_id in OPENROUTER_MODELS.items():
         models[name] = OpenRouterAdapter(name, model_id)
     if only is not None:

@@ -3,7 +3,7 @@ from types import SimpleNamespace
 from unittest.mock import patch, MagicMock
 
 from econ_eval.adapters.opus import OpusAdapter
-from econ_eval.adapters.glm import GLMAdapter, DeepSeekAdapter
+from econ_eval.adapters.glm import GLMAdapter, DeepSeekAdapter, DeepSeekFlashAdapter
 
 
 def test_opus_parses_cli_json():
@@ -37,6 +37,15 @@ def test_deepseek_identity():
     a = DeepSeekAdapter()
     assert a.model == "deepseek-v4-flash"
     assert a.key_env == "DEEPSEEK_API_KEY"
+
+
+def test_deepseek_flash_identity():
+    a = DeepSeekFlashAdapter()
+    assert a.model == "deepseek-flash"
+    assert a.base_url == "https://api.deepseek.com/anthropic"
+    assert a.key_env == "DEEPSEEK_API_KEY"
+    assert a.max_tokens == 16384
+    assert GLMAdapter().max_tokens == 4096
 
 
 def test_zai_run_parses_message(monkeypatch):
