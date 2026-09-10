@@ -29,6 +29,15 @@ any audit; write findings back here, dated.
   be too from 2026-09-14 (api-docs.deepseek.com/updates). Chosen over the
   OpenRouter route because OpenRouter served `deepseek/deepseek-v4.1-flash`
   from a third-party host (Novita) in the smoke test.
+- Contestant `muse` (2026-09-10): Meta Muse Spark 1.3 through the Muse Code CLI
+  on the user's subscription (`muse.py`, `muse exec --json --session-id <uuid>`
+  from an empty scratch dir). Final text comes from the `run.terminal.completed`
+  event; usage is NOT in that stream, it is summed from the CLI's own session
+  store (`~/.local/share/muse/sessions/Y/M/D/<sid>/session.jsonl`,
+  `payload.event.kind == model_completed`). The subscription lane serves
+  `muse-spark-1.3-contributor`; the adapter raises if the served model id
+  differs. It is an agent with tools (it ran its own tests on code tasks), so
+  input tokens are ~57k per call, mostly cache reads, like the Opus CLI row.
 
 ## Data/unit conventions
 
@@ -46,6 +55,13 @@ any audit; write findings back here, dated.
   token count $0.0803 at the off-peak price; DeepSeek balance fell $0.07 (the
   run was 15:48 to 16:05 UTC, off-peak; 5 identical prompts per task hit the
   input cache). Judge Opus 5, same as the 2026-08-01 rows.
+- 2026-09-10: Muse Spark 1.3 run, 100 completions, 0.972 overall [0.930,
+  1.000], 4th; sign test vs Opus p=0.727 (5 wins, 3 losses). Perfect on
+  quantitative and both Bangla tasks, tops writing (0.980). Two coding zeros,
+  both format: the agent appended its own verification output to code it was
+  told to return alone (code-rca idx 0 unfenced prose; code-cagr idx 0 test
+  output in the largest fence). Cost column $0.60 is notional (contributor API
+  price on CLI token counts); the run was subscription prompts.
 - 2026-07-31: OpusAdapter previously omitted `--model`, so it ran whatever the
   CLI's default model was. Pinned to `claude-opus-4-8` explicitly. Historical
   opus rows (June, July 30 runs) were generated when the CLI default was Opus
@@ -88,6 +104,17 @@ any audit; write findings back here, dated.
 - The user's SessionStart routine hook prepends its card text to every CLI
   answer, judge included. `_parse_json` finds the JSON object anyway, so
   grades are unaffected, but transcripts of judge output would carry it.
+- `muse exec` in headless mode HANGS when the agent proposes a bash tool call:
+  it enters `approval_wait` and nothing answers. One code-cagr call on
+  2026-09-10 sat the full 600 s timeout. Adapter timeout is now 180 s (a normal
+  call is 30 to 60 s) and the retry loop opens a fresh session. The clean fix,
+  `--disable-approval --user-input-auto-resolve` on the exec command, could
+  not be committed from the Claude Code background job because its auto-mode
+  classifier refuses to write a flag that disables another tool's approvals;
+  add it by hand if hangs recur (the user approved it on 2026-09-10).
+- The runner buffers transcript writes until the process exits, so a task's
+  transcript file is empty while its 5 samples run; read the Muse session
+  store (or the DB) for in-flight inspection.
 - Parallel runs of ONE model: give each worker its own `--date` suffix so the
   per-worker transcript files never interleave, then concatenate them (done
   2026-09-10, 5 workers x 4 tasks, 17 min wall clock for 100 completions).

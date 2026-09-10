@@ -3,16 +3,17 @@
 A reproducible benchmark that asks a single question: **on the work an
 economist actually does, how much do you give up by using a cheap model?**
 
-Eleven models answer the same 20 tasks, five times each (1,100 completions), across
+Twelve models answer the same 20 tasks, five times each (1,200 completions), across
 four tracks: quantitative trade/macro computation, economic reasoning, domain
 coding, and policy writing. Objective tracks are graded deterministically
 (numeric tolerance, sandboxed code execution). Subjective tracks are rubric
 graded by Claude Opus 5. Every score carries a bootstrap 95% CI, and every
 challenger is compared to Claude Opus 4.8 with an exact binomial sign test.
 
-Ten models ran 2026-08-01. DeepSeek V4.1 Flash, released 2026-09-10, was added
-the same day on the same tasks, same samples, same judge. All 1,100 completions
-graded, all 550 subjective rows scored by a single judge. Raw output:
+Ten models ran 2026-08-01. DeepSeek V4.1 Flash, released 2026-09-10, and Meta
+Muse Spark 1.3 were added the same day on the same tasks, same samples, same
+judge. All 1,200 completions graded, all 600 subjective rows scored by a single
+judge. Raw output:
 [`results/report-2026-09-10.md`](results/report-2026-09-10.md) (the ten-model
 run is preserved in `results/report-2026-08-01.md`), quality-vs-cost plot at
 `results/plot-2026-09-10.png`, per-sample scores in `results/scores.sqlite`.
@@ -26,14 +27,15 @@ run is preserved in `results/report-2026-08-01.md`), quality-vs-cost plot at
 | 1 | deepseek-flash (V4.1) | 0.992 | [0.975, 1.000] | $0.0803 | $0.000803 | tied (p=0.375) |
 | 2 | claude-opus-4-8 | 0.979 | [0.951, 0.997] | $7.8015 | $0.078015 | reference |
 | 3 | moonshotai/kimi-k3 | 0.975 | [0.949, 0.996] | $2.5008 | $0.025008 | tied (p=1.000) |
-| 4 | google/gemini-3.6-flash | 0.956 | [0.918, 0.988] | $1.1091 | $0.011091 | tied (p=0.125) |
-| 5 | openai/gpt-5.6-luna | 0.947 | [0.905, 0.984] | $0.0257 | $0.000257 | tied (p=0.125) |
-| 6 | x-ai/grok-4.5 | 0.940 | [0.895, 0.980] | $0.4953 | $0.004953 | loses (p=0.016) |
-| 7 | deepseek/deepseek-v4-flash-0731 | 0.934 | [0.889, 0.975] | $0.0332 | $0.000332 | loses (p=0.008) |
-| 8 | minimax/minimax-m3 | 0.922 | [0.866, 0.969] | $0.1974 | $0.002035 | loses (p=0.004) |
-| 9 | nvidia/nemotron-3-ultra-550b-a55b | 0.899 | [0.809, 0.973] | $0.2210 | $0.002377 | loses (p=0.031) |
-| 10 | glm-5.2 | 0.873 | [0.761, 0.949] | $0.0388 | $0.000408 | loses (p=0.002) |
-| 11 | meta-llama/llama-4-maverick | 0.864 | [0.783, 0.934] | $0.0139 | $0.000143 | loses (p=0.002) |
+| 4 | muse-spark-1.3-contributor | 0.972 | [0.930, 1.000] | $0.5977 | $0.006099 | tied (p=0.727) |
+| 5 | google/gemini-3.6-flash | 0.956 | [0.918, 0.988] | $1.1091 | $0.011091 | tied (p=0.125) |
+| 6 | openai/gpt-5.6-luna | 0.947 | [0.905, 0.984] | $0.0257 | $0.000257 | tied (p=0.125) |
+| 7 | x-ai/grok-4.5 | 0.940 | [0.895, 0.980] | $0.4953 | $0.004953 | loses (p=0.016) |
+| 8 | deepseek/deepseek-v4-flash-0731 | 0.934 | [0.889, 0.975] | $0.0332 | $0.000332 | loses (p=0.008) |
+| 9 | minimax/minimax-m3 | 0.922 | [0.866, 0.969] | $0.1974 | $0.002035 | loses (p=0.004) |
+| 10 | nvidia/nemotron-3-ultra-550b-a55b | 0.899 | [0.809, 0.973] | $0.2210 | $0.002377 | loses (p=0.031) |
+| 11 | glm-5.2 | 0.873 | [0.761, 0.949] | $0.0388 | $0.000408 | loses (p=0.002) |
+| 12 | meta-llama/llama-4-maverick | 0.864 | [0.783, 0.934] | $0.0139 | $0.000143 | loses (p=0.002) |
 
 Score is the mean over 20 tasks of each task's mean over 5 samples. Cost covers
 all 100 completions per model. "vs Opus" is an exact two-sided sign test on
@@ -47,15 +49,25 @@ differ and loses one (the Bangla op-ed, 0.90 vs 0.95), which with 20 tasks does
 not clear significance (p = 0.375): a statistical tie, in its favour. The
 2026-08-01 headline still holds underneath: `gpt-5.6-luna` scores 0.947,
 indistinguishable from Opus (p = 0.125) at 1/304th the cost per correct answer.
-Four models survive the Opus comparison: DeepSeek V4.1 Flash, Kimi K3, Gemini
-3.6 Flash, and Luna. Six do not.
+Five models survive the Opus comparison: DeepSeek V4.1 Flash, Kimi K3, Muse
+Spark 1.3, Gemini 3.6 Flash, and Luna. Six do not.
+
+Meta's Muse Spark 1.3, run through the Muse Code CLI on its subscription,
+places fourth at 0.972. It tops the writing track (0.980) and is the only model
+perfect on both Bangla tasks, but it is an agent, not a bare completion: twice
+it ran its own verification and appended the output to code it was told to
+return alone, and the grader scored both samples as failures. Without those two
+format slips it would sit at 0.992, level with DeepSeek.
 
 The cost column is not like for like, and correcting it does not change the
 conclusion. Opus runs through the `claude` CLI, so its `input_tokens` carry the
 entire Claude Code harness context: 8,287 tokens per call against a 101-token
 median for the raw API models. Substituting that median and keeping Opus's real
 output tokens gives **$3.7088 total, $0.037088 per correct**, still 144x Luna.
-Both figures are reported so neither flatters the result.
+Both figures are reported so neither flatters the result. Muse Spark carries
+the same caveat, at 57,539 input tokens per call through the Muse Code CLI,
+priced here at Meta's contributor API rate although the run itself was
+subscription prompts.
 
 ## Which track separates the models
 
@@ -63,14 +75,14 @@ Not all four tracks carry information. Spread between best and worst model:
 
 | track | best | worst | spread | verdict |
 |---|---|---|---|---|
-| coding | 1.000 | 0.960 | 0.040 | saturated, near-useless for ranking |
+| coding | 1.000 | 0.920 | 0.080 | saturated, near-useless for ranking |
 | reasoning | 1.000 | 0.828 | 0.172 | mild separation |
 | quantitative | 1.000 | 0.800 | 0.200 | separation from one task |
-| writing | 0.970 | 0.638 | 0.332 | **the discriminating track** |
+| writing | 0.980 | 0.638 | 0.342 | **the discriminating track** |
 
-Ten of eleven models score a perfect 1.000 on coding, and seven do on
-quantitative. If this benchmark were objective-only it would report an
-eleven-way tie and no significant differences anywhere, which is exactly what
+Ten of twelve models score a perfect 1.000 on coding, and eight do on
+quantitative. If this benchmark were objective-only it would report a
+twelve-way tie and no significant differences anywhere, which is exactly what
 it reported before the subjective tracks were graded. **The ranking above exists because of
 the writing and reasoning tracks.**
 
@@ -78,9 +90,10 @@ the writing and reasoning tracks.**
 
 | model | quantitative | reasoning | coding | writing |
 |---|---|---|---|---|
-| deepseek-flash (V4.1) | 1.000 | 1.000 | 1.000 | **0.970** |
+| deepseek-flash (V4.1) | 1.000 | 1.000 | 1.000 | 0.970 |
 | claude-opus-4-8 | 1.000 | 1.000 | 1.000 | 0.914 |
 | moonshotai/kimi-k3 | 1.000 | 1.000 | 1.000 | 0.900 |
+| muse-spark-1.3-contributor | 1.000 | 0.990 | **0.920** | **0.980** |
 | google/gemini-3.6-flash | 1.000 | 0.970 | 1.000 | 0.852 |
 | openai/gpt-5.6-luna | 1.000 | 0.926 | 1.000 | 0.862 |
 | x-ai/grok-4.5 | 1.000 | 0.934 | 1.000 | 0.826 |
@@ -97,18 +110,19 @@ separates nothing and is pure ballast.
 
 | task | track | mean | worst model | spread |
 |---|---|---|---|---|
-| quant-rca-6109 | quantitative | 0.836 | 0.000 | **1.000** |
-| write-bangla-formal | writing | 0.807 | 0.400 | **0.600** |
-| write-oped-bangla | writing | 0.850 | 0.400 | **0.600** |
-| write-policy-brief | writing | 0.805 | 0.500 | 0.500 |
-| reason-taka-depreciation | reasoning | 0.868 | 0.700 | 0.300 |
-| reason-export-diversification | reasoning | 0.941 | 0.750 | 0.250 |
-| reason-rca-interpretation | reasoning | 0.945 | 0.760 | 0.240 |
-| code-cagr | coding | 0.982 | 0.800 | 0.200 |
-| reason-passthrough-netting | reasoning | 0.956 | 0.800 | 0.200 |
-| write-exec-summary | writing | 0.791 | 0.750 | 0.200 |
-| write-tight-constraints | writing | 0.916 | 0.840 | 0.160 |
-| reason-ldc-graduation | reasoning | 0.995 | 0.950 | 0.050 |
+| quant-rca-6109 | quantitative | 0.850 | 0.000 | **1.000** |
+| write-bangla-formal | writing | 0.823 | 0.400 | **0.600** |
+| write-oped-bangla | writing | 0.862 | 0.400 | **0.600** |
+| write-policy-brief | writing | 0.821 | 0.500 | 0.500 |
+| reason-taka-depreciation | reasoning | 0.875 | 0.700 | 0.300 |
+| reason-export-diversification | reasoning | 0.946 | 0.750 | 0.250 |
+| reason-rca-interpretation | reasoning | 0.950 | 0.760 | 0.240 |
+| code-cagr | coding | 0.967 | 0.800 | 0.200 |
+| code-rca | coding | 0.983 | 0.800 | 0.200 |
+| reason-passthrough-netting | reasoning | 0.960 | 0.800 | 0.200 |
+| write-exec-summary | writing | 0.800 | 0.750 | 0.200 |
+| write-tight-constraints | writing | 0.923 | 0.840 | 0.160 |
+| reason-ldc-graduation | reasoning | 0.996 | 0.950 | 0.050 |
 | quant-cotton-share | quantitative | 1.000 | 1.000 | 0.000 |
 | quant-hs6109-sum | quantitative | 1.000 | 1.000 | 0.000 |
 | quant-trade-balance | quantitative | 1.000 | 1.000 | 0.000 |
@@ -116,9 +130,8 @@ separates nothing and is pure ballast.
 | code-aggregate | coding | 1.000 | 1.000 | 0.000 |
 | code-hhi | coding | 1.000 | 1.000 | 0.000 |
 | code-method-of-reflections | coding | 1.000 | 1.000 | 0.000 |
-| code-rca | coding | 1.000 | 1.000 | 0.000 |
 
-**Eight of twenty tasks are dead weight**: every model scores 1.000, including
+**Seven of twenty tasks are dead weight**: every model scores 1.000, including
 `quant-unit-trap`, which was written specifically to catch unit errors and
 caught none. Three tasks (one RCA, two Bangla) carry most of the discrimination.
 The benchmark is doing real work with roughly a third of its surface area.
@@ -138,6 +151,7 @@ Bangla tasks:
 
 | model | Bangla |
 |---|---|
+| muse-spark-1.3-contributor | 1.000 |
 | claude-opus-4-8 | 0.955 |
 | deepseek-flash (V4.1) | 0.950 |
 | openai/gpt-5.6-luna | 0.920 |
@@ -160,7 +174,7 @@ English scores will not warn you.
 
 ### 2. A confident order-of-magnitude error
 
-Nine of the ten objective failures land on one task, `quant-rca-6109`, which
+Nine of the twelve objective failures land on one task, `quant-rca-6109`, which
 asks for a Balassa RCA from four raw trade values with no intermediate
 scaffolding:
 
@@ -173,6 +187,8 @@ scaffolding:
 | minimax/minimax-m3 | quant-rca-6109 | 1/5 | no number found | format |
 | nvidia/nemotron-3-ultra | quant-rca-6109 | 1/5 | no number found | format |
 | minimax/minimax-m3 | code-cagr | 1/5 | `NameError: name 'cagr' is not defined` | code |
+| muse-spark-1.3-contributor | code-rca | 1/5 | correct code, then an unfenced "Verified: ..." line | format |
+| muse-spark-1.3-contributor | code-cagr | 1/5 | largest fenced block was its own test output, not the code | format |
 
 GLM 5.2 returns 6.58 on all five samples, low by a factor of 9.93, while
 producing confident well-formatted output. That is the failure mode that
@@ -186,6 +202,7 @@ it counts as a failure is a policy choice this benchmark makes explicit.
 | model | mean latency (s) | output tokens per call |
 |---|---|---|
 | moonshotai/kimi-k3 | 48.7 | 1,635 |
+| muse-spark-1.3-contributor | 41.6 | 1,114 |
 | claude-opus-4-8 | 22.5 | 1,463 |
 | deepseek/deepseek-v4-flash-0731 | 19.5 | 1,126 |
 | minimax/minimax-m3 | 17.7 | 1,586 |
@@ -206,8 +223,9 @@ which is most of why they are the cheapest per correct answer despite ranking
 9th and 10th on quality.
 
 Latencies were measured with up to ten evals running in parallel (five for the
-DeepSeek V4.1 Flash run), so treat them as relative rather than clean
-single-stream numbers. V4.1 Flash's 1,311 output tokens per call include its
+DeepSeek V4.1 Flash and Muse Spark runs), so treat them as relative rather than
+clean single-stream numbers. Muse's 41.6 s is mostly CLI startup and its
+agent's tool steps, not generation. V4.1 Flash's 1,311 output tokens per call include its
 hidden thinking, which the DeepSeek endpoint bills as output.
 
 ## Models
@@ -217,6 +235,7 @@ hidden thinking, which the DeepSeek endpoint bills as output.
 | opus | `claude-opus-4-8` | `claude` CLI, subscription | 5.00 | 25.00 |
 | glm | `glm-5.2` | z.ai direct, Anthropic-compatible | 0.60 | 2.20 |
 | deepseek-flash | `deepseek-flash` (V4.1 Flash) | DeepSeek direct, Anthropic-compatible | 0.15 | 0.60 |
+| muse | `muse-spark-1.3-contributor` | `muse` CLI (Muse Code), subscription | 0.10 | 0.20 |
 | gemini-flash | `google/gemini-3.6-flash` | OpenRouter | 1.50 | 7.50 |
 | deepseek-0731 | `deepseek/deepseek-v4-flash-0731` | OpenRouter | 0.14 | 0.28 |
 | kimi-k3 | `moonshotai/kimi-k3` | OpenRouter | 3.00 | 15.00 |

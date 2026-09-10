@@ -4,6 +4,7 @@ from unittest.mock import patch, MagicMock
 
 from econ_eval.adapters.opus import OpusAdapter
 from econ_eval.adapters.glm import GLMAdapter, DeepSeekAdapter, DeepSeekFlashAdapter
+from econ_eval.adapters.muse import MuseAdapter, _parse_stream
 
 
 def test_opus_parses_cli_json():
@@ -77,3 +78,19 @@ def test_opus_parses_stream_array():
         c = OpusAdapter().run("q")
     assert c.text == "ANSWER: 42"
     assert c.tokens_in == 12000 and c.tokens_out == 7
+
+
+def test_muse_parses_terminal_event():
+    stream = "\n".join([
+        json.dumps({"payload_type": "run.output.delta", "payload": {"text": "ANS"}}),
+        json.dumps({"payload_type": "run.terminal.completed",
+                    "payload": {"terminal": "completed", "text": "ANSWER: 42"}}),
+    ])
+    assert _parse_stream(stream) == ("completed", "ANSWER: 42")
+    assert _parse_stream("not json\n") == ("", "")
+
+
+def test_muse_identity():
+    a = MuseAdapter()
+    assert a.model == "muse-spark-1.3-contributor"
+    assert a.name == "muse"

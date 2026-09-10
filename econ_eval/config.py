@@ -15,11 +15,15 @@ DEFAULT_SAMPLES = 5
 # OpenRouter prices read from https://openrouter.ai/api/v1/models on 2026-07-31.
 # deepseek-flash (V4.1 Flash): official off-peak cache-miss price from
 # api-docs.deepseek.com/quick_start/pricing on 2026-09-10 (peak is 2x).
+# muse-spark-1.3-contributor: Meta contributor API price (also the OpenRouter
+# catalog figure, 2026-09-10); the run itself goes through the Muse Code
+# subscription, so like Opus the cost column is notional.
 PRICES = {
     "claude-opus-4-8": {"in": 5.0, "out": 25.0},
     "glm-5.2": {"in": 0.6, "out": 2.2},
     "deepseek-v4-flash": {"in": 0.3, "out": 1.1},
     "deepseek-flash": {"in": 0.15, "out": 0.6},
+    "muse-spark-1.3-contributor": {"in": 0.1, "out": 0.2},
     "google/gemini-3.6-flash": {"in": 1.5, "out": 7.5},
     "deepseek/deepseek-v4-flash-0731": {"in": 0.14, "out": 0.28},
     "moonshotai/kimi-k3": {"in": 3.0, "out": 15.0},
@@ -47,8 +51,10 @@ def build_models(only: set[str] | None = None):
     from econ_eval.adapters.opus import OpusAdapter
     from econ_eval.adapters.glm import GLMAdapter, DeepSeekFlashAdapter
     from econ_eval.adapters.openrouter import OpenRouterAdapter
+    from econ_eval.adapters.muse import MuseAdapter
 
-    models = {"opus": OpusAdapter(), "glm": GLMAdapter(), "deepseek-flash": DeepSeekFlashAdapter()}
+    models = {"opus": OpusAdapter(), "glm": GLMAdapter(), "deepseek-flash": DeepSeekFlashAdapter(),
+              "muse": MuseAdapter()}
     for name, model_id in OPENROUTER_MODELS.items():
         models[name] = OpenRouterAdapter(name, model_id)
     if only is not None:
