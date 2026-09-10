@@ -21,6 +21,14 @@ any audit; write findings back here, dated.
   Opus 5 (user instruction, after the Fable 7-day quota was exhausted). Every
   judge switch requires regrading ALL judge rows, not just ungraded ones;
   `DONE_PREFIX` in regrade_judge.py enforces this by design.
+- Contestant `deepseek-flash` (2026-09-10): DeepSeek V4.1 Flash via the direct
+  DeepSeek Anthropic-compatible endpoint (`ZAIAdapter`, max_tokens 16384 to
+  leave room for hidden thinking, which the endpoint bills as output tokens).
+  `deepseek-flash` is DeepSeek's canonical id for V4.1 Flash since 2026-09-10;
+  `deepseek-v4-flash` is retired and routed to it, and `deepseek-v4-pro` will
+  be too from 2026-09-14 (api-docs.deepseek.com/updates). Chosen over the
+  OpenRouter route because OpenRouter served `deepseek/deepseek-v4.1-flash`
+  from a third-party host (Novita) in the smoke test.
 
 ## Data/unit conventions
 
@@ -32,6 +40,12 @@ any audit; write findings back here, dated.
 
 ## Resolved (dated)
 
+- 2026-09-10: DeepSeek V4.1 Flash run, 100 completions, 0.992 overall
+  [0.975, 1.000], first model above Opus 4.8 (0.979); sign test vs Opus
+  p=0.375 (4 wins, 1 loss on the 5 writing tasks where they differ). Cost by
+  token count $0.0803 at the off-peak price; DeepSeek balance fell $0.07 (the
+  run was 15:48 to 16:05 UTC, off-peak; 5 identical prompts per task hit the
+  input cache). Judge Opus 5, same as the 2026-08-01 rows.
 - 2026-07-31: OpusAdapter previously omitted `--model`, so it ran whatever the
   CLI's default model was. Pinned to `claude-opus-4-8` explicitly. Historical
   opus rows (June, July 30 runs) were generated when the CLI default was Opus
@@ -59,6 +73,24 @@ any audit; write findings back here, dated.
 
 ## Known-intentional quirks
 
+- The runner's inline judge path writes `detail` WITHOUT the `opus5-judge`
+  prefix that regrade_judge.py stamps, so a fresh model's judge rows look
+  un-regraded to that script. For the 2026-09-10 run the 50 rows were stamped
+  by hand (`UPDATE scores SET detail='opus5-judge '||detail ...`) after the run,
+  since the judge was already Opus 5. Do the same for any new model, or run
+  regrade_judge.py on its transcript (which re-spends the judge calls).
+- The `claude` CLI judge FAILS if `ANTHROPIC_API_KEY` is in the environment
+  (it prefers the key over the subscription login and the key in config.sh is
+  not valid): "claude.ai connectors are disabled because ANTHROPIC_API_KEY or
+  another auth source is set". Export only the contestant keys; never
+  `set -a; source config.sh` before an eval. Cost of learning this 2026-09-10:
+  five workers burned 9 minutes of judge retries with zero rows written.
+- The user's SessionStart routine hook prepends its card text to every CLI
+  answer, judge included. `_parse_json` finds the JSON object anyway, so
+  grades are unaffected, but transcripts of judge output would carry it.
+- Parallel runs of ONE model: give each worker its own `--date` suffix so the
+  per-worker transcript files never interleave, then concatenate them (done
+  2026-09-10, 5 workers x 4 tasks, 17 min wall clock for 100 completions).
 - The `claude` CLI signals credit exhaustion two different ways: exit 1 with
   EMPTY stderr, or exit 0 with an `api_error` result envelope carrying HTTP
   429. The empty-stderr form is easy to misread as a concurrency fault. It is
