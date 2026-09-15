@@ -1,0 +1,21 @@
+id: review-referee-comment
+track: review
+prompt: |
+  Write one referee comment, under 150 words, on this abstract for an economics
+  journal. Be specific about the identification problem and propose one
+  concrete fix.
+
+  "Using ordinary least squares on a panel of 45 developing countries over
+  2000 to 2020, we regress log GDP per capita on log merchandise exports with
+  year dummies. We find that a 10 percent increase in exports raises GDP per
+  capita by 3.2 percent, and conclude that export promotion is a first-order
+  growth policy." 
+grader:
+  type: judge
+  rubric:
+    - "Identifies reverse causality or simultaneity between exports and income as the core identification problem"
+    - "Proposes a concrete fix (instrumental variables such as gravity-predicted trade, country fixed effects with a credible shock, or a quasi-experimental design)"
+    - "Notes that the 3.2 percent figure is a correlational elasticity and that the policy conclusion does not follow from it as stated"
+    - "Referee register: specific, courteous, no filler, under 150 words"
+source: "rubric authored from standard trade-and-growth identification critique (Frankel and Romer 1999 instrument); author-defined abstract, 2026-09-15"
+samples: 5

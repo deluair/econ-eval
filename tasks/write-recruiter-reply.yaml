@@ -1,0 +1,15 @@
+id: write-recruiter-reply
+track: writing
+prompt: |
+  A recruiter emailed offering a 30-minute screening call for an Economist role
+  this week. Write the reply in 60 to 80 words: accept, propose two specific
+  time slots in Eastern Time, and ask exactly one question about the role.
+grader:
+  type: judge
+  rubric:
+    - "60 to 80 words"
+    - "Accepts and proposes two specific time slots that name Eastern Time"
+    - "Asks exactly one question about the role"
+    - "Warm, professional, no filler or apology"
+source: "the owner's daily job-pipeline email routine; rubric author-defined, 2026-09-15"
+samples: 5

@@ -1,0 +1,19 @@
+id: code-pct-consistency
+track: coding
+prompt: |
+  Write a Python function flag_inconsistent(rows, tol=0.1) for checking a
+  report's growth figures. rows is a list of (old, new, reported_pct_change)
+  tuples. The true percent change is (new / old - 1) * 100. Return the list of
+  indices (in order) where the absolute difference between the true change and
+  the reported change exceeds tol percentage points. Standard library only.
+  Return only the code.
+grader:
+  type: code_exec
+  assertions: |
+    assert flag_inconsistent([(7.7, 9.6, 23.7), (100, 110, 10.0), (50, 40, -20.0)]) == [0]
+    assert flag_inconsistent([(7.7, 9.6, 24.7)]) == []
+    assert flag_inconsistent([]) == []
+    assert flag_inconsistent([(200, 210, 5.0), (200, 210, 5.2), (200, 210, 4.95)], tol=0.1) == [1]
+  timeout_s: 20
+source: "deterministic unit test; internal-consistency check from the owner's quality gate (9.6 from 7.7 is +24.7 percent, not +23.7; author-defined, 2026-09-15)"
+samples: 5

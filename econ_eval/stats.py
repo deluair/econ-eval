@@ -48,6 +48,26 @@ def paired_winrate(a_by_task: list[list[float]],
     return rate, len(a)
 
 
+def latency_summary(xs: list[float]) -> dict[str, float]:
+    """n, mean, median, p95, min, max of per-sample latencies. Raises on empty."""
+    a = np.asarray([float(x) for x in xs], dtype=float)
+    if a.size == 0:
+        raise ValueError("no latencies")
+    return {
+        "n": int(a.size),
+        "mean": float(a.mean()),
+        "median": float(np.median(a)),
+        "p95": float(np.percentile(a, 95)),
+        "min": float(a.min()),
+        "max": float(a.max()),
+    }
+
+
+def check_latency_bars(medians: dict[str, float], bars: dict[str, float]) -> list[str]:
+    """Sorted model names whose median latency exceeds their bar (models without rows ignored)."""
+    return sorted(n for n, b in bars.items() if n in medians and medians[n] > b)
+
+
 def sign_test(a_by_task: list[list[float]], b_by_task: list[list[float]]) -> float:
     """Two-sided exact binomial sign test p-value on per-task A>B vs A<B (ties dropped)."""
     a = _task_means(a_by_task)

@@ -232,6 +232,9 @@ hidden thinking, which the DeepSeek endpoint bills as output.
 
 | adapter | model id | access path | $/M in | $/M out |
 |---|---|---|---|---|
+| fable | `claude-fable-5-1` | `claude` CLI, subscription (2026-09-15 run) | 10.00 | 50.00 |
+| astra | `gpt-6-astra` | `codex exec` CLI, ChatGPT plan, reasoning high (2026-09-15 run) | subscription | subscription |
+| gemini-3.8-flash | `gemini-3.8-flash-high` | `agy` CLI, Google AI Ultra (2026-09-15 run) | subscription | subscription |
 | opus | `claude-opus-4-8` | `claude` CLI, subscription | 5.00 | 25.00 |
 | glm | `glm-5.2` | z.ai direct, Anthropic-compatible | 0.60 | 2.20 |
 | deepseek-flash | `deepseek-flash` (V4.1 Flash) | DeepSeek direct, Anthropic-compatible | 0.15 | 0.60 |
@@ -246,22 +249,34 @@ hidden thinking, which the DeepSeek endpoint bills as output.
 | llama | `meta-llama/llama-4-maverick` | OpenRouter | 0.20 | 0.80 |
 
 Prices are USD per 1M tokens, read from the OpenRouter catalog API on
-2026-07-31 and stored in `econ_eval/config.py`. Two notes on selection:
+2026-07-31 and stored in `econ_eval/config.py`. Fable 5.1 is the Anthropic
+API list price (2026-06-24 model table). GPT-6 Astra and Gemini 3.8 Flash have
+no API price: both are served only through subscriptions, so their cost column
+is zero and their token counts include their CLI harness context (about 25k and
+13k input tokens per call). Two notes on selection:
 `kimi-k3` at $3.00/$15.00 is not a cheap model and is included only because it
 was requested by name, and `llama-4-maverick` is the newest Meta model in the
 catalog, since there is no Llama 5.
 
 ## Task suite
 
-Twenty tasks, five per track, 5 samples each. Every task carries a `source`
+Fifty tasks, 5 samples each: the twenty original tasks of 2026-06-22 (five
+per track) and thirty "daily work" tasks added 2026-09-15, built from the work
+the author does every day: trade computations on the platform's own BACI
+parquet, bank and systemic-risk arithmetic, the small functions a trade data
+pipeline needs, checking a colleague's numbers, refereeing, briefing a coding
+agent, and the daily writing (a post, a cover paragraph, a plain-Bengali
+explanation, an abstract, a recruiter reply). Every task carries a `source`
 field and the loader refuses to construct one without it.
 
-| track | grader | how it is scored |
-|---|---|---|
-| quantitative | `numeric` | parse the `ANSWER:` line, compare to a reference within a per-task relative tolerance (0.5% for RCA) |
-| coding | `code_exec` | execute the returned code in a sandbox against assertions |
-| reasoning | `judge` | model judge scores each rubric point 0 or 1 |
-| writing | `judge` | same, including two Bangla-language tasks |
+| track | tasks | grader | how it is scored |
+|---|---|---|---|
+| quantitative | 11 | `numeric` | parse the `ANSWER:` line, compare to a reference within a per-task relative tolerance (0.5% for RCA) |
+| finance | 5 | `numeric` | same: SRISK, Eisenberg-Noe clearing, CET1, ACM term premium, Fisher real rate |
+| coding | 10 | `code_exec` | execute the returned code in a sandbox against assertions |
+| reasoning | 10 | `judge` (5) and `numeric` (5) | rubric points for the 2026-06-22 tasks; exact arithmetic for the 2026-09-15 ones |
+| review | 4 | `judge` | consistency check, referee comment, agent brief, systemd timer |
+| writing | 10 | `judge` | model judge scores each rubric point 0 or 1, including three Bangla-language tasks |
 
 ```
 quant-cotton-share      quant-hs6109-sum     quant-rca-6109
@@ -273,12 +288,31 @@ reason-passthrough-netting                   reason-rca-interpretation
 reason-taka-depreciation
 write-bangla-formal     write-exec-summary   write-oped-bangla
 write-policy-brief      write-tight-constraints
+
+# added 2026-09-15
+quant-cagr-decade       quant-growth-year    quant-rmg-share-change
+quant-bilateral-india   quant-rca-pick       quant-tariff-weighted
+fin-srisk               fin-eisenberg-noe    fin-cet1
+fin-term-premium        fin-real-rate
+code-hs-normalize       code-pct-consistency code-sqlite-top3
+code-eisenberg-noe      code-kusd-format
+reason-terms-of-trade   reason-real-depreciation
+reason-remittance-fx    reason-hysa-interest reason-gravity-coef
+review-consistency      review-referee-comment
+review-agent-brief      review-systemd-timer
+write-x-post            write-cover-paragraph
+write-bangla-plain-remittance                write-abstract-150
+write-recruiter-reply
 ```
 
-Reference values are computed by `scripts/build_references.py` from primary
-data (BACI via the TradeWeave parquet tree, IMF, FRED) and verified before
-commit. No fabricated values. The RCA reference was re-derived from its four
-inputs during this run and matched to four decimal places.
+Reference values are computed by `scripts/build_references.py` (2026-06-22
+tasks) and `scripts/build_references_daily.py` (2026-09-15 tasks) from primary
+data: BACI 2013, 2022 and 2023 and WTO applied MFN lines via the TradeWeave
+parquet tree, the NY Fed ACM term-structure series via the FinObservatory
+parquet tree, and stated formulas (Brownlees-Engle SRISK, Eisenberg-Noe,
+Basel III, Fisher) on author-defined inputs. No fabricated values. The RCA
+reference was re-derived from its four inputs during the first run and
+matched to four decimal places.
 
 Task files are effectively append-only: editing a prompt invalidates every
 cached completion for it. Add tasks, do not rewrite them.
@@ -346,8 +380,11 @@ as the latter.
 make setup                      # uv sync
 export OPENROUTER_API_KEY=...   # the 8-model fleet (OPENAI_API_KEY also accepted)
 export ZAI_API_KEY=...          # GLM 5.2 direct
-# Opus and the Opus 5 judge run through the `claude` CLI under your Claude Code
-# login, no API key needed.
+export DEEPSEEK_API_KEY=...     # DeepSeek V4.1 Flash direct (must be exported, not just set)
+# Opus, Fable and the Opus 5 judge run through the `claude` CLI under your Claude
+# Code login; Astra through `codex` (ChatGPT login); Gemini 3.8 Flash through
+# `agy` (Google login); Muse through `muse`. No API key for any of those, and
+# never export ANTHROPIC_API_KEY before an eval (the CLI judge would switch to it).
 ```
 
 ## Use
@@ -357,12 +394,17 @@ make probe    # confirm every contestant and the judge are reachable
 make dry      # print task and call counts, no model calls
 make eval     # all tasks x all models x N=5, graded and cached
 make report   # results/report-<date>.md plus the quality-vs-cost plot
-make test     # 47 unit tests, no live calls
+make test     # 80 unit tests, no live calls
 
 # one model at a time, which is how the fleet was actually run
 uv run python -m econ_eval --date <date> eval -n 5 --models grok
-# report a subset of tracks
+# k parallel workers of one model, each taking every k-th task (shared cache)
+uv run python -m econ_eval --date <date> eval --models fable --shard 0/3
+# report a subset of tracks, or of models (ids as stored in the DB)
 uv run python -m econ_eval --date <date> report --tracks quantitative,coding
+uv run python -m econ_eval --date <date> report --models claude-fable-5-1,gpt-6-astra
+# the 2026-09-15 run as launched (3 shards per CLI model, 2 for DeepSeek)
+scripts/run_2026_09_15.sh
 # regrade every judge row after changing judges (16 workers by default)
 REGRADE_WORKERS=16 uv run python scripts/regrade_judge.py results/transcripts-*.jsonl
 ```

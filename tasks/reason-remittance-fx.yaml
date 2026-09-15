@@ -1,0 +1,13 @@
+id: reason-remittance-fx
+track: reasoning
+prompt: |
+  Sending 500 US dollars to Bangladesh. Option A: exchange rate 122.5 taka per
+  dollar with a 1.5 percent fee deducted from the dollar amount before
+  conversion. Option B: exchange rate 121.0 taka per dollar with no fee. How
+  many more taka does the better option deliver than the other? Reply with a single number on a line beginning "ANSWER:".
+grader:
+  type: numeric
+  reference: 168.75
+  tolerance_pct: 0.5
+source: "author-defined inputs (owner's monthly remittance planning), reference computed by scripts/build_references_daily.py, 2026-09-15"
+samples: 5

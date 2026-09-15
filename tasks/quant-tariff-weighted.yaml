@@ -1,0 +1,16 @@
+id: quant-tariff-weighted
+track: quantitative
+prompt: |
+  Bangladesh applied MFN tariffs (ad valorem, percent, 2024 schedule) and
+  Bangladesh's 2023 imports of the same lines (BACI, thousands USD):
+  HS 100630 rice 25.0 percent, imports 149,196.922;
+  HS 300490 medicaments 8.75 percent, imports 47,192.055;
+  HS 870323 motor cars 1500-3000cc 20.7143 percent, imports 73,816.86.
+  Compute the import-weighted average tariff across the three lines, in
+  percent. Reply with a single number on a line beginning "ANSWER:".
+grader:
+  type: numeric
+  reference: 20.9911
+  tolerance_pct: 0.5
+source: "~/tradeweave/data/parquet/applied_mfn_hs6.parquet (WTO tariff profiles, BGD 2024) and BACI 2023 imports; scripts/build_references_daily.py, 2026-09-15"
+samples: 5

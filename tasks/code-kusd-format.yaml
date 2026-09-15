@@ -1,0 +1,22 @@
+id: code-kusd-format
+track: coding
+prompt: |
+  Write a Python function fmt_kusd(x) that formats a value given in THOUSANDS of
+  US dollars for a chart label. Rules: absolute value at least 1,000,000 (i.e. a
+  billion dollars or more) prints as billions with one decimal, e.g. "$65.9B";
+  absolute value at least 1,000 prints as millions with one decimal, e.g.
+  "$149.2M"; smaller values print as whole thousands, e.g. "$850K"; negative
+  values put the minus sign before the dollar sign, e.g. "-$10.3B". Use Python's
+  built-in rounding. Standard library only. Return only the code.
+grader:
+  type: code_exec
+  assertions: |
+    assert fmt_kusd(65871533.408) == "$65.9B"
+    assert fmt_kusd(149196.922) == "$149.2M"
+    assert fmt_kusd(850.4) == "$850K"
+    assert fmt_kusd(-10337002.735) == "-$10.3B"
+    assert fmt_kusd(1000) == "$1.0M"
+    assert fmt_kusd(0) == "$0K"
+  timeout_s: 20
+source: "deterministic unit test; TradeWeave chart-label convention (BACI thousands USD; author-defined, 2026-09-15)"
+samples: 5

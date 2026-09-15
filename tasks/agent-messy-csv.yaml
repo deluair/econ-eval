@@ -1,0 +1,22 @@
+id: agent-messy-csv
+track: agent
+prompt: |
+  Your working directory holds three CSV files with Bangladesh merchandise
+  export values (thousands USD): exports_2013.csv, exports_2022.csv,
+  exports_2023.csv. Each has columns category, value_kusd,
+  share_pct_printed, note. Quirks: values are quoted with thousands
+  separators (e.g. "57,695,013.137"); the share_pct_printed column is stale,
+  ignore it and recompute yourself; one cell is empty (a missing value for a
+  year you do not need). Using value_kusd only, compute the share in percent
+  of ready-made garments (category garments_ch61_62, HS chapters 61 and 62)
+  in Bangladesh's total merchandise exports in 2023. Work with run_python,
+  write the percentage as a single number (e.g. 86.07) to ANSWER.txt, then
+  reply with a line starting with FINAL summarizing the result.
+grader:
+  type: artifact
+  mode: numeric-on-file
+  file: ANSWER.txt
+  reference: 86.0671
+  tolerance_pct: 0.5
+source: "~/tradeweave/data/parquet (BACI HS22 via TradeWeave, thousands USD; scripts/build_references_daily.py, 2026-09-15); CSV layout and quirks author-defined, reference computed 2026-09-15"
+samples: 5

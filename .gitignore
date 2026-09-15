@@ -9,6 +9,8 @@ data/*.csv
 data/*.duckdb
 # Large transcripts kept out of git; scored sqlite is committed
 results/transcripts-*.jsonl
+# per-shard worker logs of a run (see scripts/run_2026_09_15.sh)
+results/logs-*/
 *.wal
 *.shm
 .DS_Store

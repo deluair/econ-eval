@@ -1,0 +1,14 @@
+id: reason-real-depreciation
+track: reasoning
+prompt: |
+  The taka depreciates 10 percent against the dollar in nominal terms (taka per
+  dollar rises 10 percent). Over the same year US prices rise 3 percent and
+  Bangladeshi prices rise 9.5 percent. Compute the exact percent change in the
+  real exchange rate defined as e * P_us / P_bd (a rise is a real
+  depreciation), not the linear approximation. Reply with a single number on a line beginning "ANSWER:".
+grader:
+  type: numeric
+  reference: 3.4703
+  tolerance_pct: 0.5
+source: "real exchange rate q = e*P*/P; author-defined inputs, reference computed by scripts/build_references_daily.py, 2026-09-15"
+samples: 5

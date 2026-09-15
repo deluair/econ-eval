@@ -1,0 +1,13 @@
+id: fin-term-premium
+track: finance
+prompt: |
+  Adrian, Crump and Moench (ACM) model, 10-year maturity, 2026-07-31: fitted
+  zero-coupon yield 4.8230 percent, model-implied average expected short rate
+  over the ten years 3.9854 percent. Compute the 10-year term premium in
+  percentage points. Reply with a single number on a line beginning "ANSWER:".
+grader:
+  type: numeric
+  reference: 0.8376
+  tolerance_pct: 1.0
+source: "~/finobservatory/data/parquet/acm_term_premia.parquet (NY Fed ACM, monthly, 2026-07-31 row; scripts/build_references_daily.py, 2026-09-15)"
+samples: 5

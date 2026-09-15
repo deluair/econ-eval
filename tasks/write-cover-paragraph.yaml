@@ -1,0 +1,18 @@
+id: write-cover-paragraph
+track: writing
+prompt: |
+  Write the opening paragraph (90 to 120 words) of a cover letter for a Trade
+  Economist position at an international financial institution. Use only these
+  facts: PhD in economics (2020); international trade economist; built
+  TradeWeave, a trade analytics platform covering 238 countries and 30 years of
+  BACI data; works in Python and DuckDB. Do not invent employers, publications,
+  or degrees. Do not open with "I am writing to apply".
+grader:
+  type: judge
+  rubric:
+    - "90 to 120 words"
+    - "Uses only the given facts; invents no employer, publication, degree, or metric"
+    - "Opens with value or fit, not with 'I am writing to apply'"
+    - "Names the role, professional register, no clichés or filler"
+source: "the owner's job-application answer sheet facts; rubric author-defined, 2026-09-15"
+samples: 5

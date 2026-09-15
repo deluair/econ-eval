@@ -1,0 +1,14 @@
+id: quant-rmg-share-change
+track: quantitative
+prompt: |
+  Bangladesh exports (BACI, thousands USD). 2013: ready-made garments (HS
+  chapters 61 and 62) 26,381,097.079 out of total exports 32,146,279.163. 2023:
+  garments 49,656,452.203 out of total exports 57,695,013.137. By how many
+  percentage points did the garment share of total exports change between 2013
+  and 2023? Reply with a single number on a line beginning "ANSWER:".
+grader:
+  type: numeric
+  reference: 4.0014
+  tolerance_pct: 1.0
+source: "~/tradeweave/data/parquet (BACI HS22 via TradeWeave, thousands USD; scripts/build_references_daily.py, 2026-09-15)"
+samples: 5

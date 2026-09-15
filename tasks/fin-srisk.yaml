@@ -1,0 +1,13 @@
+id: fin-srisk
+track: finance
+prompt: |
+  A bank has market value of equity 150, book value of debt 1,200 (both in
+  billions USD) and a long-run marginal expected shortfall (LRMES) of 40 percent
+  in a crisis. Using the Brownlees and Engle (2017) SRISK definition with
+  prudential capital ratio k = 8 percent, compute SRISK in billions USD. Reply with a single number on a line beginning "ANSWER:".
+grader:
+  type: numeric
+  reference: 13.2
+  tolerance_pct: 1.0
+source: "Brownlees and Engle (2017, RFS) SRISK = k*D - (1-k)*(1-LRMES)*E; author-defined inputs, reference computed by scripts/build_references_daily.py, 2026-09-15"
+samples: 5

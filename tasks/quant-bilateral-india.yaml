@@ -1,0 +1,13 @@
+id: quant-bilateral-india
+track: quantitative
+prompt: |
+  BACI 2023, thousands USD: Bangladesh exports to India 2,007,784.364;
+  India exports to Bangladesh 12,344,787.099. Compute Bangladesh's bilateral
+  merchandise trade balance with India in MILLIONS of US dollars, with its
+  sign. Reply with a single number on a line beginning "ANSWER:".
+grader:
+  type: numeric
+  reference: -10337.003
+  tolerance_pct: 0.5
+source: "~/tradeweave/data/parquet (BACI HS22 via TradeWeave, thousands USD; scripts/build_references_daily.py, 2026-09-15)"
+samples: 5

@@ -1,0 +1,17 @@
+id: write-x-post
+track: writing
+prompt: |
+  Write one post for X (formerly Twitter), at most 280 characters, from these
+  facts and nothing else: Bangladesh merchandise exports were 57.7 billion USD
+  in 2023, down 12.4 percent from 65.9 billion in 2022; garments were 86.1
+  percent of the 2023 total; source BACI. One clear takeaway, no emojis, at
+  most one hashtag.
+grader:
+  type: judge
+  rubric:
+    - "At most 280 characters"
+    - "Uses the given figures correctly (57.7 billion, down 12.4 percent, 86.1 percent) and invents no other number"
+    - "Names BACI as the source"
+    - "One clear takeaway or hook, no emojis, at most one hashtag, no filler"
+source: "~/tradeweave/data/parquet (BACI 2022-2023 via TradeWeave); the owner's daily X post routine; rubric author-defined, 2026-09-15"
+samples: 5

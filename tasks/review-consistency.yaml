@@ -1,0 +1,22 @@
+id: review-consistency
+track: review
+prompt: |
+  You are checking a draft policy note before it ships. Find every internal
+  inconsistency or unit error in the passage below, quote the wrong figure,
+  and give the corrected value. Do not flag figures that are correct. Under 120
+  words.
+
+  "Bangladesh's export growth rose to 9.6 percent from 7.7 percent, a 23.7
+  percent increase in the growth rate (1.9 percentage points). BACI records
+  2023 exports of 57,695,013 thousand USD, that is 57.7 billion USD. Imports
+  from India were 12,344,787 thousand USD, or 12.3 million USD, so the
+  bilateral deficit with India remains large." 
+grader:
+  type: judge
+  rubric:
+    - "Flags 23.7 percent as wrong and gives about 24.7 percent (9.6/7.7 - 1) as the correction"
+    - "Flags 12.3 million USD as a unit error and corrects it to about 12.3 billion USD"
+    - "Does not flag the 1.9 percentage points or the 57.7 billion USD, which are correct"
+    - "Quotes the wrong figures verbatim and stays under 120 words with no filler"
+source: "owner's quality-gate example (9.6 from 7.7 = +24.7 percent) and BACI 2023 figures via TradeWeave; author-defined passage, 2026-09-15"
+samples: 5

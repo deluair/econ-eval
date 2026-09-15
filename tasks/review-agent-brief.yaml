@@ -1,0 +1,20 @@
+id: review-agent-brief
+track: review
+prompt: |
+  Write a work brief for a cheap coding model that will implement one feature
+  without asking questions. Feature: add GET /api/hhi?country=ISO3&year=YYYY to
+  an existing FastAPI app; it returns the Herfindahl-Hirschman index of a
+  country's export concentration across HS6 products for that year, computed
+  with DuckDB from a parquet file with columns country_code, year, product_code,
+  export_value (thousands USD). Under 250 words. Include a fenced acceptance
+  block of shell commands that must pass.
+grader:
+  type: judge
+  rubric:
+    - "States the HHI definition precisely (sum of squared product shares of total exports) and the scale used (0 to 1 or 0 to 10,000)"
+    - "Scopes the change: names the file(s) to touch and says what not to touch"
+    - "Specifies the error behaviour for a missing country or year (a 404 or 422 with a message)"
+    - "Includes a fenced acceptance block with at least one runnable check (curl, pytest, or python) that a runner could execute"
+    - "Under 250 words, imperative, no filler"
+source: "owner's dcode loop brief format (docs/briefs with an acceptance block); rubric author-defined, 2026-09-15"
+samples: 5

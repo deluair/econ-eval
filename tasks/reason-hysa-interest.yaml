@@ -1,0 +1,14 @@
+id: reason-hysa-interest
+track: reasoning
+prompt: |
+  A high-yield savings account advertises a 4.25 percent APY (annual percentage
+  yield, which already includes compounding). 10,000 dollars is deposited and
+  left for exactly nine months with no other activity. How many dollars of
+  interest are earned, using the APY definition (fractional-year compounding)
+  rather than a simple pro-rata of the annual rate? Reply with a single number on a line beginning "ANSWER:".
+grader:
+  type: numeric
+  reference: 317.0859
+  tolerance_pct: 0.5
+source: "APY definition: balance * ((1+APY)^(t/12) - 1); author-defined inputs, reference computed by scripts/build_references_daily.py, 2026-09-15"
+samples: 5

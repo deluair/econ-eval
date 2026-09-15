@@ -1,0 +1,14 @@
+id: fin-eisenberg-noe
+track: finance
+prompt: |
+  Three banks A, B, C. Nominal interbank liabilities (row owes column): A owes B
+  40 and C 10; B owes A 20 and C 30; C owes A 10 and B 10. External (non-bank)
+  assets: A 15, B 5, C 20. Under the Eisenberg and Noe (2001) clearing mechanism
+  (limited liability, absolute priority, pro-rata sharing), what total payment
+  does bank A make to the other banks? Reply with a single number on a line beginning "ANSWER:".
+grader:
+  type: numeric
+  reference: 45.0
+  tolerance_pct: 0.5
+source: "Eisenberg and Noe (2001, Management Science) fictitious-default algorithm; author-defined network, reference computed by scripts/build_references_daily.py, 2026-09-15"
+samples: 5

@@ -1,0 +1,17 @@
+id: quant-rca-pick
+track: quantitative
+prompt: |
+  BACI 2023, thousands USD. Bangladesh total exports 57,695,013.137; world total
+  exports 22,960,416,672.717. Bangladesh and world exports by HS6 product:
+  610910 (cotton T-shirts) 7,413,218.568 and 33,707,566.444;
+  620342 (cotton trousers) 6,199,887.454 and 23,664,155.856;
+  530310 (raw jute) 155,601.933 and 196,005.822;
+  640399 (other leather footwear) 256,958.588 and 32,456,627.478.
+  Compute the Balassa revealed comparative advantage index for each product and
+  report the HIGHEST index value. Reply with a single number on a line beginning "ANSWER:".
+grader:
+  type: numeric
+  reference: 315.9276
+  tolerance_pct: 1.0
+source: "~/tradeweave/data/parquet (BACI HS22 via TradeWeave, thousands USD; scripts/build_references_daily.py, 2026-09-15)"
+samples: 5

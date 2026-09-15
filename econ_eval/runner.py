@@ -2,11 +2,14 @@
 from __future__ import annotations
 
 import json
+import shutil
 import sqlite3
+import tempfile
 import time
 from pathlib import Path
 
 from econ_eval.graders import numeric, exact, code_exec, judge as judge_mod
+from econ_eval.graders import artifact as artifact_mod
 from econ_eval.models import Grade, Task
 
 SCHEMA = """
@@ -19,7 +22,7 @@ CREATE TABLE IF NOT EXISTS scores (
 """
 
 
-def grade_sample(task: Task, text: str, judge) -> Grade:
+def grade_sample(task: Task, text: str, judge, workdir=None) -> Grade:
     gt = task.grader["type"]
     if gt == "numeric":
         return numeric.grade(task, text)
@@ -29,7 +32,20 @@ def grade_sample(task: Task, text: str, judge) -> Grade:
         return code_exec.grade(task, text)
     if gt == "judge":
         return judge_mod.rubric_score(judge, task, text)
+    if gt == "artifact":
+        return artifact_mod.grade(task, text, workdir)
     raise ValueError(f"unknown grader type {gt!r}")
+
+
+def _seed_workdir(task: Task, workdir: Path) -> None:
+    """Copy task seed files (tasks/files/<id>/[files]) into the workdir."""
+    from econ_eval.config import TASKS_DIR
+
+    seed = TASKS_DIR / "files" / task.id
+    if task.files:
+        seed = seed / task.files
+    if seed.is_dir():
+        shutil.copytree(seed, workdir, dirs_exist_ok=True)
 
 
 def _connect(db_path: Path) -> sqlite3.Connection:
@@ -69,8 +85,19 @@ def run(tasks: list[Task], models: dict, judge, n: int,
                 for idx in range(k):
                     if _cached(con, task.id, adapter.model, idx):
                         continue
-                    comp = adapter.run(task.prompt)
-                    g = grade_sample(task, comp.text, judge)
+                    if task.track == "agent":
+                        from econ_eval.agent_loop import run_agent
+
+                        with tempfile.TemporaryDirectory(prefix=f"agent-{task.id}-") as wd:
+                            _seed_workdir(task, Path(wd))
+                            comp = run_agent(
+                                adapter, task.prompt, wd,
+                                max_steps=int(task.grader.get("max_steps", 12)),
+                            )
+                            g = grade_sample(task, comp.text, judge, workdir=wd)
+                    else:
+                        comp = adapter.run(task.prompt)
+                        g = grade_sample(task, comp.text, judge)
                     con.execute(
                         "INSERT OR REPLACE INTO scores VALUES (?,?,?,?,?,?,?,?,?,?)",
                         (task.id, task.track, adapter.model, idx, g.score,
@@ -82,7 +109,7 @@ def run(tasks: list[Task], models: dict, judge, n: int,
                         "ts": time.time(), "task_id": task.id, "track": task.track,
                         "model": adapter.model, "idx": idx, "prompt": task.prompt,
                         "completion": comp.text, "score": g.score, "passed": g.passed,
-                        "detail": g.detail,
+                        "detail": g.detail, "trace": comp.raw.get("trace"),
                     }) + "\n")
                     made += 1
     con.close()

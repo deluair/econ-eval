@@ -1,0 +1,13 @@
+id: reason-gravity-coef
+track: reasoning
+prompt: |
+  A gravity regression of log bilateral exports on a dummy for a regional trade
+  agreement gives a coefficient of 0.42. Compute the implied percent effect of
+  the agreement on exports, using the exact transformation rather than the
+  approximation that reads the coefficient as a percent. Reply with a single number on a line beginning "ANSWER:".
+grader:
+  type: numeric
+  reference: 52.1962
+  tolerance_pct: 0.5
+source: "semi-elasticity of a dummy in a log-linear model: 100*(exp(b)-1); author-defined input, reference computed by scripts/build_references_daily.py, 2026-09-15"
+samples: 5

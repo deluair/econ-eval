@@ -1,0 +1,12 @@
+id: quant-growth-year
+track: quantitative
+prompt: |
+  Bangladesh total merchandise exports (BACI, thousands USD): 65,871,533.408 in
+  2022 and 57,695,013.137 in 2023. Compute the 2023 growth rate in percent,
+  with its sign. Reply with a single number on a line beginning "ANSWER:".
+grader:
+  type: numeric
+  reference: -12.4128
+  tolerance_pct: 0.5
+source: "~/tradeweave/data/parquet (BACI HS22 via TradeWeave, thousands USD; scripts/build_references_daily.py, 2026-09-15)"
+samples: 5

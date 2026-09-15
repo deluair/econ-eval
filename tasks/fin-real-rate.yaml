@@ -1,0 +1,12 @@
+id: fin-real-rate
+track: finance
+prompt: |
+  A one-year deposit pays a nominal rate of 12.5 percent and inflation over the
+  year is 9.9 percent. Compute the exact ex post real interest rate from the
+  Fisher relation (not the linear approximation), in percent. Reply with a single number on a line beginning "ANSWER:".
+grader:
+  type: numeric
+  reference: 2.3658
+  tolerance_pct: 1.0
+source: "Fisher relation (1+i) = (1+r)(1+pi); author-defined inputs, reference computed by scripts/build_references_daily.py, 2026-09-15"
+samples: 5

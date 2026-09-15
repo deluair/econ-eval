@@ -1,0 +1,21 @@
+id: write-abstract-150
+track: writing
+prompt: |
+  Write a 130 to 160 word abstract from these findings only. Study: simulated
+  effect of Bangladesh's scheduled graduation from least developed country
+  status on garment exports to the European Union. Method: Armington partial
+  equilibrium model, elasticity of substitution 4, HS6 tariff lines. Inputs:
+  duty-free access under the EU Everything But Arms scheme ends three years
+  after graduation; the applicable MFN duties on the main garment lines are 9.6
+  to 12 percent. Result: garment exports to the EU fall 5.7 percent in the
+  central case, 3.9 to 8.1 percent across elasticity values 3 to 6. Policy point:
+  the GSP+ scheme would preserve most of the access if its conditions are met.
+grader:
+  type: judge
+  rubric:
+    - "130 to 160 words, single paragraph"
+    - "States the question, method (Armington PE, sigma 4, HS6), headline result (5.7 percent, range 3.9 to 8.1) and the GSP+ implication"
+    - "Invents no number, scheme, or finding beyond the given ones"
+    - "Working-paper register: precise, no hedging filler, no 'in conclusion'"
+source: "author-defined findings (illustrative, not a published estimate) in the owner's working-paper style; rubric author-defined, 2026-09-15"
+samples: 5

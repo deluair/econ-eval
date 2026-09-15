@@ -1,0 +1,26 @@
+id: agent-fix-script
+track: agent
+prompt: |
+  Your working directory holds data.csv (Bangladesh-India 2023 bilateral
+  merchandise trade, thousands USD: columns partner, exports_kusd,
+  imports_kusd) and analyze.py, which is supposed to compute Bangladesh's
+  bilateral trade balance with India in MILLIONS of USD and write it to
+  RESULT.txt. The script has two bugs: it reads a column name that does not
+  exist in data.csv, and it converts units wrongly (values are thousands of
+  USD, the answer must be millions of USD). Read both files, fix analyze.py
+  with write_file, run it with run_python (path: analyze.py), check RESULT.txt
+  holds the signed balance, then reply with a line starting with FINAL
+  summarizing the fix and the result.
+grader:
+  type: artifact
+  mode: assertions-on-file
+  assertions: |
+    import re
+    text = open("RESULT.txt").read()
+    m = re.findall(r"[-+]?\d[\d,]*\.?\d*(?:[eE][-+]?\d+)?", text)
+    assert m, "RESULT.txt has no number"
+    got = float(m[-1].replace(",", ""))
+    assert abs(got - (-10337.003)) / abs(-10337.003) <= 0.005, f"got {got}"
+  timeout_s: 20
+source: "~/tradeweave/data/parquet (BACI HS22 via TradeWeave, thousands USD; scripts/build_references_daily.py, 2026-09-15); analyze.py bugs planted by the author, reference computed 2026-09-15"
+samples: 5

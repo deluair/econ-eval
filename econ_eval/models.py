@@ -7,8 +7,8 @@ from typing import Any
 
 import yaml
 
-VALID_TRACKS = {"quantitative", "reasoning", "coding", "writing"}
-VALID_GRADERS = {"numeric", "exact", "code_exec", "judge"}
+VALID_TRACKS = {"quantitative", "reasoning", "coding", "writing", "finance", "review", "agent"}
+VALID_GRADERS = {"numeric", "exact", "code_exec", "judge", "artifact"}
 
 
 @dataclass
@@ -36,6 +36,7 @@ class Task:
     grader: dict[str, Any]
     source: str
     samples: int = 5
+    files: str | None = None
 
     def __post_init__(self) -> None:
         if self.track not in VALID_TRACKS:
@@ -56,6 +57,7 @@ class Task:
             grader=data["grader"],
             source=data["source"],
             samples=data.get("samples", 5),
+            files=data.get("files"),
         )
 
 

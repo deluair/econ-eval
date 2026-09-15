@@ -1,0 +1,17 @@
+id: write-bangla-plain-remittance
+track: writing
+prompt: |
+  Write 100 to 140 words in plain, everyday Bengali (spoken register, not formal
+  or literary) explaining to a family member which remittance option is better
+  and why: Option A converts 500 dollars at 122.5 taka per dollar after a 1.5
+  percent fee; Option B converts at 121.0 taka per dollar with no fee. Option B
+  delivers 168.75 taka more. State the winner and the taka difference.
+grader:
+  type: judge
+  rubric:
+    - "Written in Bengali script throughout, plain spoken register (no formal or literary verb forms)"
+    - "States that Option B (121.0, no fee) wins and gives the difference as about 168.75 taka"
+    - "Explains the reason: the 1.5 percent fee costs more than the better rate gains"
+    - "100 to 140 words, no filler"
+source: "author-defined inputs, difference computed by scripts/build_references_daily.py, 2026-09-15; plain-Bengali register rule from the owner's writing guidance"
+samples: 5

@@ -20,6 +20,13 @@ DEFAULT_SAMPLES = 5
 # subscription, so like Opus the cost column is notional.
 PRICES = {
     "claude-opus-4-8": {"in": 5.0, "out": 25.0},
+    # 2026-09-15 additions. Fable 5.1: Anthropic API list price (claude-api skill
+    # model table, cached 2026-06-24). gpt-6-astra and gemini-3.8-flash-high are served
+    # only through the ChatGPT and Google AI Ultra subscriptions (no API price exists),
+    # so their cost column is 0 and the README says "subscription".
+    "claude-fable-5-1": {"in": 10.0, "out": 50.0},
+    "gpt-6-astra": {"in": 0.0, "out": 0.0},
+    "gemini-3.8-flash-high": {"in": 0.0, "out": 0.0},
     "glm-5.2": {"in": 0.6, "out": 2.2},
     "deepseek-v4-flash": {"in": 0.3, "out": 1.1},
     "deepseek-flash": {"in": 0.15, "out": 0.6},
@@ -52,9 +59,15 @@ def build_models(only: set[str] | None = None):
     from econ_eval.adapters.glm import GLMAdapter, DeepSeekFlashAdapter
     from econ_eval.adapters.openrouter import OpenRouterAdapter
     from econ_eval.adapters.muse import MuseAdapter
+    from econ_eval.adapters.agy import AgyAdapter
+    from econ_eval.adapters.codex import CodexAdapter
 
     models = {"opus": OpusAdapter(), "glm": GLMAdapter(), "deepseek-flash": DeepSeekFlashAdapter(),
-              "muse": MuseAdapter()}
+              "muse": MuseAdapter(),
+              # 2026-09-15 contestants: subscription CLIs, see each adapter's docstring.
+              "fable": OpusAdapter(name="fable", model="claude-fable-5-1", timeout_s=600),
+              "astra": CodexAdapter(),
+              "gemini-3.8-flash": AgyAdapter()}
     for name, model_id in OPENROUTER_MODELS.items():
         models[name] = OpenRouterAdapter(name, model_id)
     if only is not None:
@@ -66,6 +79,12 @@ def build_models(only: set[str] | None = None):
 
 
 def build_judge():
+    import os
+
+    if os.environ.get("JUDGE", "opus") == "astra":
+        from econ_eval.adapters.codex import CodexAdapter
+
+        return CodexAdapter(name="judge-astra")
     from econ_eval.adapters.opus import JudgeAdapter
 
     return JudgeAdapter()

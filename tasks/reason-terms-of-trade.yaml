@@ -1,0 +1,12 @@
+id: reason-terms-of-trade
+track: reasoning
+prompt: |
+  Over a year a country's export price index rises 5 percent and its import
+  price index rises 8 percent. By what percent do its terms of trade change,
+  with sign? Reply with a single number on a line beginning "ANSWER:".
+grader:
+  type: numeric
+  reference: -2.7778
+  tolerance_pct: 1.0
+source: "terms of trade = Px/Pm; author-defined inputs, reference computed by scripts/build_references_daily.py, 2026-09-15"
+samples: 5

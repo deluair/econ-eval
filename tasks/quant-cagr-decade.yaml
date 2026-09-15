@@ -1,0 +1,12 @@
+id: quant-cagr-decade
+track: quantitative
+prompt: |
+  Bangladesh total merchandise exports (BACI, thousands USD): 32,146,279.163 in
+  2013 and 57,695,013.137 in 2023. Compute the compound annual growth rate over
+  the ten years, in percent. Reply with a single number on a line beginning "ANSWER:".
+grader:
+  type: numeric
+  reference: 6.0232
+  tolerance_pct: 0.5
+source: "~/tradeweave/data/parquet (BACI HS22 via TradeWeave, thousands USD; scripts/build_references_daily.py, 2026-09-15)"
+samples: 5

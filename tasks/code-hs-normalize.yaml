@@ -1,0 +1,29 @@
+id: code-hs-normalize
+track: coding
+prompt: |
+  Write a Python function normalize_hs(code) that returns a canonical six-character
+  HS6 code string. Input may be an int or a str. Rules: remove spaces and dots;
+  codes that lost leading zeros when stored as integers must be left-padded with
+  zeros to six digits; raise ValueError if the cleaned code has more than six
+  digits or contains a non-digit. Standard library only. Return only the code.
+grader:
+  type: code_exec
+  assertions: |
+    assert normalize_hs(10121) == "010121"
+    assert normalize_hs("6109.10") == "610910"
+    assert normalize_hs(" 620342 ") == "620342"
+    assert normalize_hs("0306.17") == "030617"
+    assert normalize_hs(3004) == "003004"
+    try:
+        normalize_hs("6109101")
+        raise SystemExit("expected ValueError")
+    except ValueError:
+        pass
+    try:
+        normalize_hs("61O910")
+        raise SystemExit("expected ValueError")
+    except ValueError:
+        pass
+  timeout_s: 20
+source: "deterministic unit test; BACI product_code convention (six-digit strings; author-defined, 2026-09-15)"
+samples: 5

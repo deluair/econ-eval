@@ -1,0 +1,23 @@
+id: code-eisenberg-noe
+track: coding
+prompt: |
+  Write a Python function clearing_vector(L, e) implementing the Eisenberg and
+  Noe (2001) clearing payment vector. L is an n x n list of lists of nominal
+  interbank liabilities (L[i][j] is what bank i owes bank j, zero diagonal) and e
+  is the list of external assets. Use the fictitious-default algorithm or fixed
+  point iteration on p_i = min(pbar_i, max(0, e_i + sum_j Pi_ji * p_j)) with
+  pro-rata shares Pi. Return the list of clearing payments. Standard library
+  only. Return only the code.
+grader:
+  type: code_exec
+  assertions: |
+    L = [[0, 40, 10], [20, 0, 30], [10, 10, 0]]
+    e = [15, 5, 20]
+    p = clearing_vector(L, e)
+    assert all(abs(a - b) < 1e-6 for a, b in zip(p, [45.0, 50.0, 20.0])), p
+    p2 = clearing_vector([[0, 10], [5, 0]], [100, 100])
+    assert all(abs(a - b) < 1e-6 for a, b in zip(p2, [10.0, 5.0])), p2
+    assert clearing_vector([[0]], [3.0]) == [0] or abs(clearing_vector([[0]], [3.0])[0]) < 1e-9
+  timeout_s: 30
+source: "Eisenberg and Noe (2001) definition; reference vector [45, 50, 20] computed by scripts/build_references_daily.py, 2026-09-15"
+samples: 5

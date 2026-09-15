@@ -1,0 +1,24 @@
+id: code-sqlite-top3
+track: coding
+prompt: |
+  A SQLite table exports(country TEXT, year INTEGER, hs6 TEXT, value_kusd REAL)
+  holds export values in thousands USD. Write Python code that defines a string
+  variable QUERY containing one SQL statement returning the three largest hs6
+  lines for country 'BGD' in year 2023, columns hs6 and value_kusd, ordered by
+  value_kusd descending. Return only the code (just the QUERY assignment).
+grader:
+  type: code_exec
+  assertions: |
+    import sqlite3
+    con = sqlite3.connect(":memory:")
+    con.execute("CREATE TABLE exports(country TEXT, year INTEGER, hs6 TEXT, value_kusd REAL)")
+    con.executemany("INSERT INTO exports VALUES (?,?,?,?)", [
+        ("BGD", 2023, "610910", 7413218.568), ("BGD", 2023, "620342", 6199887.454),
+        ("BGD", 2023, "530310", 155601.933), ("BGD", 2023, "640399", 256958.588),
+        ("BGD", 2022, "610910", 8000000.0), ("VNM", 2023, "610910", 9000000.0)])
+    rows = con.execute(QUERY).fetchall()
+    assert [r[0] for r in rows] == ["610910", "620342", "640399"], rows
+    assert abs(rows[2][1] - 256958.588) < 1e-6
+  timeout_s: 20
+source: "deterministic unit test on an in-memory SQLite table; values from BACI 2023 via TradeWeave (author-defined, 2026-09-15)"
+samples: 5

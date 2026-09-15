@@ -1,0 +1,16 @@
+id: review-systemd-timer
+track: review
+prompt: |
+  Write a systemd user timer and service pair that runs
+  /home/dulal/dotfiles/bin/weekly-ledger.sh every Monday at 21:30 New York
+  time, catching up a missed run after the machine was off. Give both unit
+  files and the commands to install and enable them. Under 200 words.
+grader:
+  type: judge
+  rubric:
+    - "Timer uses OnCalendar with Monday 21:30 and the America/New_York time zone (or an equivalent explicit zone)"
+    - "Timer sets Persistent=true for catch-up after downtime"
+    - "Service is Type=oneshot with the given ExecStart path; timer has WantedBy=timers.target"
+    - "Gives the user-level install commands: place or link units under ~/.config/systemd/user, daemon-reload, enable --now the timer"
+source: "systemd.timer(5) and systemd.service(5) semantics; the owner's own ledger-weekly.timer (dotfiles/systemd), 2026-09-15"
+samples: 5

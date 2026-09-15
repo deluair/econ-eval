@@ -1,0 +1,12 @@
+id: fin-cet1
+track: finance
+prompt: |
+  A bank reports: common equity tier 1 capital 42.5, additional tier 1 capital
+  6.5, tier 2 capital 12.0, risk-weighted assets 380.0 (all billions USD).
+  Compute the CET1 capital ratio as defined under Basel III, in percent. Reply with a single number on a line beginning "ANSWER:".
+grader:
+  type: numeric
+  reference: 11.1842
+  tolerance_pct: 0.5
+source: "Basel III CET1 ratio = CET1 capital / RWA; author-defined inputs, reference computed by scripts/build_references_daily.py, 2026-09-15"
+samples: 5

@@ -1,0 +1,19 @@
+id: agent-reconcile
+track: agent
+prompt: |
+  Your working directory holds two CSVs with Bangladesh's 2023 total
+  merchandise exports (thousands USD): baci.csv (source BACI) and
+  national.csv (an author-defined illustrative national total, NOT BACI and
+  NOT official, as its own source column states). Read both with read_file,
+  compute the gap (national minus BACI) as a percent of the BACI total, with
+  its sign, using run_python. Write the percentage as a single number (e.g.
+  1.40) to GAP.txt, then reply with a line starting with FINAL summarizing
+  the two totals and the gap.
+grader:
+  type: artifact
+  mode: numeric-on-file
+  file: GAP.txt
+  reference: 1.3952
+  tolerance_pct: 2.0
+source: "~/tradeweave/data/parquet (BACI HS22 via TradeWeave, thousands USD; scripts/build_references_daily.py, 2026-09-15); national total is an author-defined illustrative figure (not official), gap reference computed 2026-09-15"
+samples: 5

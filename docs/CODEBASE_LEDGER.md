@@ -39,6 +39,32 @@ any audit; write findings back here, dated.
   differs. It is an agent with tools (it ran its own tests on code tasks), so
   input tokens are ~57k per call, mostly cache reads, like the Opus CLI row.
 
+- Contestants `fable`, `astra`, `gemini-3.8-flash` (2026-09-15): all subscription
+  CLIs. `fable` = OpusAdapter on `claude-fable-5-1` (Claude Max, access ends
+  2026-09-23). `astra` = `codex.py`, `codex exec --skip-git-repo-check --json -m
+  gpt-6-astra -c model_reasoning_effort=high` from an empty scratch dir; final
+  text is the last `item.completed` agent_message, usage from `turn.completed`
+  (about 25k harness input tokens per call). `gemini-3.8-flash` = `agy.py`,
+  `agy -p --output-format json --model gemini-3.8-flash-high --disable-slash-commands`
+  from an empty scratch dir; text in `response`, usage in `usage` (about 13k
+  harness input tokens), `status` must be SUCCESS (a 503 "No capacity" returns
+  status ERROR with text still filled and is retried). The agy prompt carries a
+  PREAMBLE telling the agent to answer in the reply and touch no files: without
+  it Gemini tried `read_file` on "return only the code" prompts, print mode
+  auto-denied it, and the reply came back empty (every coding task 0.0,
+  reproduced 2026-09-15). Same class of accommodation as the Muse adapter.
+- `eval --shard i/k` (2026-09-15) partitions the task list by index modulo k so
+  k workers of one model can run at once against the shared sqlite cache; each
+  worker writes `transcripts-<date>-<model>-shardIofK.jsonl`. Launcher for the
+  2026-09-15 run: `scripts/run_2026_09_15.sh` (3 shards per CLI model, 2 for
+  DeepSeek).
+- Tracks (2026-09-15): `finance` and `review` added to `VALID_TRACKS` and to
+  `report.TRACKS`; 50 tasks = 20 original + 30 "daily work" tasks whose
+  references come from `scripts/build_references_daily.py` (BACI 2013/2022/2023
+  and WTO MFN lines via TradeWeave parquet, NY Fed ACM via FinObservatory
+  parquet, and author-defined arithmetic) and whose yamls were emitted by
+  `scripts/gen_tasks_2026_09_15.py`.
+
 ## Data/unit conventions
 
 - PRICES in config.py are USD per 1M tokens. OpenRouter entries read from
@@ -48,6 +74,18 @@ any audit; write findings back here, dated.
   caveat); not comparable to bare API token counts.
 
 ## Resolved (dated)
+
+- 2026-09-15: 50-task expanded daily-work benchmark (250 completions per model)
+  completed across 5 primary subscription and API contestants with Astra judge
+  (`export JUDGE=astra` via `CodexAdapter` after Claude CLI judge credit limits).
+  Standings: (1) `gpt-6-astra` 0.983 [0.966, 0.997]; (2) `gemini-3.8-flash-high`
+  0.977 [0.950, 0.998], perfect 1.000 on quantitative (55/55), finance (25/25),
+  and coding (50/50), 0.996 on reasoning, 0.942 writing, 0.868 review, sign test
+  vs Astra p=1.0000 (no significant difference); (3) `muse-spark-1.3-contributor`
+  0.966 [0.938, 0.988]; (4) `deepseek-flash` 0.961 [0.920, 0.991]; (5)
+  `claude-fable-5-1` 0.948 [0.913, 0.979] (232 rows).
+  Gemini 3.8 Flash run was completed from Antigravity CLI after Muse CLI stalled
+  due to its sandbox denying localhost `bind()` syscalls required by `agy`.
 
 - 2026-09-10: DeepSeek V4.1 Flash run, 100 completions, 0.992 overall
   [0.975, 1.000], first model above Opus 4.8 (0.979); sign test vs Opus
@@ -130,9 +168,33 @@ any audit; write findings back here, dated.
   linear projection. Default is 16.
 - Task files are append-only so cached completions stay valid; never edit an
   existing task prompt without wiping its cached rows.
+- `~/dotfiles/config.sh` assigns `DEEPSEEK_API_KEY` without exporting it, and
+  its Keychain resolver aborts under `set -u`. A launcher must `source` it
+  before `set -u` and then `export DEEPSEEK_API_KEY` explicitly, or every
+  DeepSeek worker dies with "DEEPSEEK_API_KEY is not set" after printing its
+  task count (two wasted launches, 2026-09-15). `run_2026_09_15.sh` does both.
+- On Claude Fable 5.1 and GPT-6 Astra the objective tracks were solved at
+  1.000 through the first 100 rows (2026-09-15); the writing/review judge rows
+  are where they separate, same shape as the 2026-08-01 finding.
 - June 2026 transcripts (12 tasks) are the only local record of the June
   opus/glm completions; keep `results/transcripts-2026-06-22.jsonl` backed up.
 
 ## Branch cleanup
 
 2026-08-10 branch cleanup (Claude): worktree-openrouter-cheap-models (tip 106e732) deleted local+remote without re-merging: PR #2 is MERGED (squash-merge, so git ancestry did not show it landed). Worktree .claude/worktrees/openrouter-cheap-models was clean: unlocked and removed. Goal state reached: only main remains local and on origin.
+
+## Agent track pilot (2026-09-15, Muse session)
+
+- New `agent` track: contestants run a tool loop (`agent_loop.py`: read_file,
+  write_file, run_python sandboxed in a per-sample temp workdir, delegate
+  depth-1 sub-call; ```tool <name> fences, FINAL ends, max_steps 12) instead
+  of one-shot completion. Runner stages `tasks/files/<id>/` into the workdir
+  when track == agent; transcripts carry the tool `trace`.
+- New `artifact` grader (deterministic, no judge spend): numeric-on-file and
+  assertions-on-file. 4 pilot tasks, all references independently re-derived
+  from seed files: agent-messy-csv 86.0671, agent-fix-script -10337.003,
+  agent-reconcile 1.3952, agent-multistep 315.9276.
+- `scripts/speed.py`: offline latency table + `--check id=sec` gate over
+  scores.sqlite (makes no model calls). p95 = linear interpolation.
+- Live proof 2026-09-15: deepseek-flash solved agent-messy-csv idx 0 end to
+  end (33.4 s, 1.0). Suite 105 passed.

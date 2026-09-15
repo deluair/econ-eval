@@ -1,0 +1,30 @@
+id: agent-multistep
+track: agent
+prompt: |
+  Your working directory holds products.csv: Bangladesh 2023 merchandise
+  exports by HS6 product (thousands USD, columns hs6, product,
+  exports_kusd). The file is dirty: hs6 codes carry stray whitespace and one
+  has an interior space, product names mix cases. World totals for 2023
+  (thousands USD): all merchandise 22,960,416,672.717; HS 530310 (raw jute)
+  196,005.822. Steps: (1) clean the table with run_python (strip whitespace
+  from hs6, drop interior spaces, so every code is six digits; keep the TOTAL
+  row for the Bangladesh total); (2) compute the Balassa revealed comparative
+  advantage index for HS 530310 as (Bangladesh 530310 / Bangladesh total) /
+  (world 530310 / world total); (3) write BRIEF.txt with two or three lines
+  describing the cleaning and giving the RCA value on a line beginning
+  "RCA:". Then reply with a line starting with FINAL summarizing the result.
+grader:
+  type: artifact
+  mode: assertions-on-file
+  assertions: |
+    import re
+    lines = open("BRIEF.txt").read().splitlines()
+    rca_lines = [l for l in lines if l.strip().lower().startswith("rca")]
+    assert rca_lines, "BRIEF.txt needs a line beginning 'RCA:'"
+    m = re.findall(r"[-+]?\d[\d,]*\.?\d*(?:[eE][-+]?\d+)?", rca_lines[-1])
+    assert m, "no number on the RCA line"
+    got = float(m[-1].replace(",", ""))
+    assert abs(got - 315.9276) / 315.9276 <= 0.01, f"got {got}"
+  timeout_s: 20
+source: "~/tradeweave/data/parquet (BACI HS22 via TradeWeave, thousands USD; scripts/build_references_daily.py, 2026-09-15); CSV dirtiness author-defined, reference computed 2026-09-15"
+samples: 5

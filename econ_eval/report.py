@@ -12,17 +12,24 @@ import matplotlib.pyplot as plt
 from econ_eval import stats
 from econ_eval.config import PRICES
 
-TRACKS = ["quantitative", "reasoning", "coding", "writing"]
+TRACKS = ["quantitative", "reasoning", "coding", "writing", "finance", "review"]
 
 
-def _load(db_path: Path, tracks: list[str] | None = None):
+def _load(db_path: Path, tracks: list[str] | None = None, models: list[str] | None = None):
     con = sqlite3.connect(db_path)
     sql = "SELECT task_id, track, model, score, passed, tokens_in, tokens_out FROM scores"
-    params: tuple = ()
+    where, params = [], []
     if tracks:
-        sql += " WHERE track IN (%s)" % ",".join("?" * len(tracks))
-        params = tuple(tracks)
-    rows = con.execute(sql, params).fetchall()
+        where.append("track IN (%s)" % ",".join("?" * len(tracks)))
+        params += list(tracks)
+    if models:
+        # model ids as stored in the DB; needed once contestants have run different
+        # task sets (the 2026-09-15 five ran 50 tasks, the 2026-08-01 fleet 20)
+        where.append("model IN (%s)" % ",".join("?" * len(models)))
+        params += list(models)
+    if where:
+        sql += " WHERE " + " AND ".join(where)
+    rows = con.execute(sql, tuple(params)).fetchall()
     con.close()
     # scores[model][track][task_id] -> list of scores
     scores: dict = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
@@ -41,12 +48,14 @@ def _by_task(model_scores: dict) -> list[list[float]]:
 
 
 def build_report(db_path: Path, out_md: Path, out_png: Path,
-                 tracks: list[str] | None = None) -> None:
-    scores, cost, correct = _load(db_path, tracks)
+                 tracks: list[str] | None = None, only_models: list[str] | None = None) -> None:
+    scores, cost, correct = _load(db_path, tracks, only_models)
     models = sorted(scores.keys())
     lines = ["# econ-eval results", ""]
     if tracks:
         lines += [f"Tracks included: {', '.join(tracks)}.", ""]
+    if only_models:
+        lines += [f"Models included: {', '.join(only_models)}.", ""]
 
     # Overall per-model score with CI, best first
     lines += ["## Overall", "",
@@ -103,10 +112,14 @@ def build_report(db_path: Path, out_md: Path, out_png: Path,
                       f"{leader} wins" if (p < 0.05 and leader != 'tie')
                       else "no significant difference"),
                   ""]
-    elif len(models) > 2 and "claude-opus-4-8" in models:
-        anchor = "claude-opus-4-8"
-        lines += ["## Paired vs opus", "",
-                  "| model | win-rate vs opus | tasks | sign-test p | verdict |",
+    elif len(models) > 2:
+        # Anchor: Opus 4.8 when it is in the set (the 2026-08-01 design); otherwise the
+        # top-ranked model, so a filtered run (2026-09-15, five subscription models)
+        # still gets a paired sign test against its leader.
+        anchor = "claude-opus-4-8" if "claude-opus-4-8" in models else ranked[0]
+        short = "opus" if anchor == "claude-opus-4-8" else anchor
+        lines += [f"## Paired vs {short}", "",
+                  f"| model | win-rate vs {short} | tasks | sign-test p | verdict |",
                   "|---|---|---|---|---|"]
         for m in ranked:
             if m == anchor:
@@ -124,7 +137,7 @@ def build_report(db_path: Path, out_md: Path, out_png: Path,
             if p >= 0.05:
                 verdict = "no significant difference"
             else:
-                verdict = "beats opus" if rate > 0.5 else "loses to opus"
+                verdict = f"beats {short}" if rate > 0.5 else f"loses to {short}"
             lines.append(f"| {m} | {rate:.2f} | {n} | {p:.4f} | {verdict} |")
         lines.append("")
 

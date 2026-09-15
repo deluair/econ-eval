@@ -25,7 +25,7 @@ WORKERS = int(os.environ.get("REGRADE_WORKERS", "16"))
 # Rows already carrying this marker are skipped, which makes the pass
 # resumable. Changing judges means changing this string, so every row is
 # regraded and no two judges ever share a scoreboard.
-DONE_PREFIX = "opus5-judge"
+DONE_PREFIX = "astra-judge"
 
 
 def main(argv: list[str]) -> int:
