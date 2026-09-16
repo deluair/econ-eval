@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>econ-eval leaderboard</title>
+<meta name="description" content="Frontier and cheap LLMs scored on an economist's daily work: trade arithmetic, finance formulas, pipeline code, refereeing and policy writing in English and Bangla.">
+<style>
+:root {
+  color-scheme: light;
+  --page: #f9f9f7; --surface: #fcfcfb; --ink: #0b0b0b; --ink-2: #52514e; --muted: #898781;
+  --grid: #e1e0d9; --axis: #c3c2b7; --border: rgba(11,11,11,0.10);
+  --series: #2a78d6; --series-soft: rgba(42,120,214,0.35);
+  --note-bg: #f0efec;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --page: #0d0d0d; --surface: #1a1a19; --ink: #ffffff; --ink-2: #c3c2b7; --muted: #898781;
+    --grid: #2c2c2a; --axis: #383835; --border: rgba(255,255,255,0.10);
+    --series: #3987e5; --series-soft: rgba(57,135,229,0.4);
+    --note-bg: #383835;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --page: #0d0d0d; --surface: #1a1a19; --ink: #ffffff; --ink-2: #c3c2b7; --muted: #898781;
+  --grid: #2c2c2a; --axis: #383835; --border: rgba(255,255,255,0.10);
+  --series: #3987e5; --series-soft: rgba(57,135,229,0.4);
+  --note-bg: #383835;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--page); color: var(--ink); font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+main { max-width: 980px; margin: 0 auto; padding: 32px 16px 64px; }
+h1 { font-size: 30px; line-height: 1.15; margin: 0 0 8px; letter-spacing: -0.01em; }
+h2 { font-size: 21px; margin: 44px 0 6px; }
+h3 { font-size: 16px; margin: 24px 0 6px; color: var(--ink-2); font-weight: 600; }
+p { margin: 6px 0 12px; max-width: 72ch; }
+.lede { font-size: 17px; color: var(--ink-2); }
+.links a { margin-right: 18px; }
+a { color: var(--series); }
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 22px 0 8px; }
+.tile { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; }
+.tile .label { font-size: 13px; color: var(--ink-2); }
+.tile .value { font-size: 28px; font-weight: 600; line-height: 1.2; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 14px 14px 8px; margin: 12px 0; }
+.card .title { font-weight: 600; margin: 0 0 2px; }
+.card .sub { font-size: 13px; color: var(--ink-2); margin: 0 0 10px; }
+svg { width: 100%; height: auto; display: block; }
+svg text { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
+.note { background: var(--note-bg); border-radius: 8px; padding: 12px 16px; margin: 12px 0; }
+.note ol { margin: 6px 0 0; padding-left: 20px; }
+table { border-collapse: collapse; width: 100%; font-size: 14px; margin: 8px 0 4px; }
+th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--grid); vertical-align: top; }
+th { color: var(--ink-2); font-weight: 600; font-size: 13px; }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.wrap { overflow-x: auto; }
+.tip { position: fixed; pointer-events: none; background: var(--surface); color: var(--ink); border: 1px solid var(--border);
+  border-radius: 6px; padding: 8px 10px; font-size: 13px; box-shadow: 0 4px 16px rgba(0,0,0,0.12); display: none; max-width: 260px; z-index: 10; }
+.tip b { display: block; margin-bottom: 2px; }
+footer { margin-top: 48px; color: var(--ink-2); font-size: 14px; }
+.muted { color: var(--muted); }
+@media (max-width: 600px) { h1 { font-size: 24px; } .tile .value { font-size: 24px; } }
+</style>
+</head>
+<body>
+<main>
+  <h1>econ-eval</h1>
+  <p class="lede">How much do you give up by using a cheap model on the work an economist actually does? Frontier and cheap LLMs scored on trade arithmetic, finance formulas, pipeline code, refereeing, and policy writing in English and Bangla.</p>
+  <p class="links"><a id="link-dataset" href="#">Dataset</a><a id="link-github" href="#">Harness and tasks on GitHub</a></p>
+  <div class="tiles">
+    <div class="tile"><div class="label">Models evaluated</div><div class="value" id="t-models"></div></div>
+    <div class="tile"><div class="label">Tasks</div><div class="value" id="t-tasks"></div></div>
+    <div class="tile"><div class="label">Graded completions</div><div class="value" id="t-scores"></div></div>
+    <div class="tile"><div class="label">Transcripts published</div><div class="value" id="t-tx"></div></div>
+  </div>
+
+  <h2 id="a">Leaderboard A: 20 tasks, 12 models, one judge</h2>
+  <p>Five samples per task, 100 completions per model. Objective tracks are graded deterministically; the judged tracks were graded by Claude Opus 5 in one pass over all twelve models. The whisker is a 95% bootstrap confidence interval over tasks.</p>
+  <div class="card"><p class="title">Score with 95% confidence interval</p><p class="sub">Mean over 20 tasks of each task's mean over 5 samples. Hover a point for the head-to-head against Opus 4.8.</p><div id="dotA"></div></div>
+  <div class="card"><p class="title">Quality against cost per correct answer</p><p class="sub">Cost is API list price times measured tokens; log scale. Opus 4.8 and Muse Spark ran through CLI harnesses that inflate their input tokens, so their cost is an upper bound.</p><div id="scatterA"></div></div>
+  <h3>Table</h3>
+  <div class="wrap" id="tableA"></div>
+  <h3>Per track</h3>
+  <div class="wrap" id="tracksA"></div>
+  <p>Coding and quantitative are saturated at this task count. The ranking comes from the writing and reasoning tracks; the two Bangla writing tasks and one Balassa RCA task carry most of the discrimination.</p>
+
+  <h2 id="b">Leaderboard B: 50 tasks, 5 models</h2>
+  <p>The 20 tasks above plus 30 daily-work tasks (bilateral shares, tariff-weighted averages, SRISK, Eisenberg-Noe clearing, CET1, term premium, HS normalisation, referee comments, an agent brief, an X post, a recruiter reply, a plain-Bangla explainer). Five frontier-tier models, mostly through subscription CLIs.</p>
+  <div class="note"><b>Read with three caveats, all visible in the dataset's <code>scores.csv</code>.</b>
+    <ol>
+      <li><b>Mixed judges.</b> The judge for this run was GPT-6 Astra, itself a contestant. DeepSeek V4.1 Flash and Muse Spark keep their Opus-5-judged rows from Leaderboard A on the 20 original tasks, so their judged scores mix two judges.</li>
+      <li><b>Incomplete Fable row.</b> Claude Fable 5.1 covers <span id="fable-tasks"></span> of 50 tasks; the run hit the CLI credit wall. Its sign test uses only the tasks it completed.</li>
+      <li><b>No price for two models.</b> GPT-6 Astra and Gemini 3.8 Flash are served only through subscriptions, so no cost is shown for them.</li>
+    </ol>
+  </div>
+  <div class="card"><p class="title">Score with 95% confidence interval</p><p class="sub">Mean over tasks completed of each task's mean over 5 samples. Hover for the head-to-head against GPT-6 Astra.</p><div id="dotB"></div></div>
+  <h3>Table</h3>
+  <div class="wrap" id="tableB"></div>
+  <h3>Per track</h3>
+  <div class="wrap" id="tracksB"></div>
+
+  <footer>
+    <p><b>Method.</b> <code>numeric</code>: parse the ANSWER line, compare to a reference within a per-task relative tolerance (0.5% for RCA). <code>code_exec</code>: run the returned code in a sandbox against assertions. <code>judge</code>: a rubric of 4 to 5 points scored 0 or 1 each, blind to model identity. Confidence intervals: percentile bootstrap over tasks then samples, 5,000 iterations, seed 0. Head-to-head: exact two-sided binomial sign test on per-task means, ties dropped, alpha 0.05. References come from BACI (CEPII), WTO MFN lines, the NY Fed ACM series, and stated formulas; no fabricated values.</p>
+    <p class="muted">Generated <span id="gen"></span> from scores.sqlite at commit <span id="commit"></span>. CC BY 4.0. Md Deluair Hossen.</p>
+  </footer>
+</main>
+<div class="tip" id="tip"></div>
+<script>
+const DATA = __DATA__;
+const $ = (s) => document.querySelector(s);
+const fmt3 = (x) => x.toFixed(3);
+const tip = $("#tip");
+function showTip(ev, html) { tip.innerHTML = html; tip.style.display = "block"; moveTip(ev); }
+function moveTip(ev) {
+  const pad = 14, w = tip.offsetWidth, h = tip.offsetHeight;
+  let x = ev.clientX + pad, y = ev.clientY + pad;
+  if (x + w > window.innerWidth - 8) x = ev.clientX - w - pad;
+  if (y + h > window.innerHeight - 8) y = ev.clientY - h - pad;
+  tip.style.left = x + "px"; tip.style.top = y + "px";
+}
+function hideTip() { tip.style.display = "none"; }
+function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;"); }
+function svgEl(tag, attrs, text) {
+  const e = document.createElementNS("http://www.w3.org/2000/svg", tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (text != null) e.textContent = text;
+  return e;
+}
+function verdictText(r, anchor) {
+  if (r.verdict_vs_anchor === "reference") return "reference model";
+  const v = { tied: "no significant difference vs", beats: "beats", loses: "loses to" }[r.verdict_vs_anchor];
+  return `${v} ${anchor} (sign test p = ${r.sign_test_p_vs_anchor.toFixed(3)})`;
+}
+function costText(r) {
+  if (r.cost_basis.startsWith("subscription")) return "subscription, no API price";
+  return `$${r.total_cost_usd.toFixed(4)} total, $${r.cost_per_correct_usd.toFixed(6)} per correct`;
+}
+
+// Ranked dot plot: one row per model, dot at score, whisker = 95% CI.
+function dotPlot(host, rows, anchor) {
+  const W = 900, rowH = 30, left = 200, right = 70, top = 28, bottom = 34;
+  const H = top + rows.length * rowH + bottom;
+  const lo = Math.floor((Math.min(...rows.map(r => r.ci_low)) - 0.02) * 20) / 20;
+  const x = (v) => left + (v - lo) / (1 - lo) * (W - left - right);
+  const svg = svgEl("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Ranked dot plot of model scores with confidence intervals" });
+  for (let v = lo; v <= 1.0001; v += 0.05) {
+    const px = x(v);
+    svg.appendChild(svgEl("line", { x1: px, x2: px, y1: top - 6, y2: H - bottom + 4, stroke: "var(--grid)", "stroke-width": 1 }));
+    svg.appendChild(svgEl("text", { x: px, y: H - bottom + 20, "text-anchor": "middle", "font-size": 12, fill: "var(--muted)" }, v.toFixed(2)));
+  }
+  svg.appendChild(svgEl("text", { x: W - right, y: 14, "text-anchor": "end", "font-size": 12, fill: "var(--muted)" }, "mean score, 95% CI"));
+  rows.forEach((r, i) => {
+    const cy = top + i * rowH + rowH / 2;
+    svg.appendChild(svgEl("text", { x: left - 12, y: cy + 4, "text-anchor": "end", "font-size": 13, fill: "var(--ink)" }, `${r.rank}. ${r.label}`));
+    svg.appendChild(svgEl("line", { x1: x(r.ci_low), x2: x(r.ci_high), y1: cy, y2: cy, stroke: "var(--series-soft)", "stroke-width": 2, "stroke-linecap": "round" }));
+    svg.appendChild(svgEl("circle", { cx: x(r.score), cy, r: 6, fill: "var(--series)", stroke: "var(--surface)", "stroke-width": 2 }));
+    svg.appendChild(svgEl("text", { x: W - right + 12, y: cy + 4, "font-size": 13, fill: "var(--ink-2)", "font-variant-numeric": "tabular-nums" }, fmt3(r.score)));
+    const hit = svgEl("rect", { x: left, y: cy - rowH / 2, width: W - left - right, height: rowH, fill: "transparent" });
+    const html = `<b>${esc(r.label)}</b>score ${fmt3(r.score)}, 95% CI [${fmt3(r.ci_low)}, ${fmt3(r.ci_high)}]<br>${r.tasks} tasks, ${r.completions} completions<br>${esc(costText(r))}<br>${esc(verdictText(r, anchor))}`;
+    hit.addEventListener("mouseenter", (ev) => showTip(ev, html));
+    hit.addEventListener("mousemove", moveTip);
+    hit.addEventListener("mouseleave", hideTip);
+    svg.appendChild(hit);
+  });
+  host.appendChild(svg);
+}
+
+// Quality vs cost per correct, log x, single series, every point named.
+function scatter(host, rows) {
+  const pts = rows.filter(r => r.cost_per_correct_usd > 0);
+  const W = 900, H = 420, left = 64, right = 30, top = 24, bottom = 54;
+  const xs = pts.map(p => Math.log10(p.cost_per_correct_usd));
+  const xmin = Math.floor(Math.min(...xs)), xmax = Math.ceil(Math.max(...xs));
+  const ymin = Math.floor((Math.min(...pts.map(p => p.score)) - 0.02) * 20) / 20;
+  const x = (v) => left + (Math.log10(v) - xmin) / (xmax - xmin) * (W - left - right);
+  const y = (v) => top + (1 - (v - ymin) / (1 - ymin)) * (H - top - bottom);
+  const svg = svgEl("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Scatter of score against cost per correct answer" });
+  for (let e = xmin; e <= xmax; e++) {
+    const px = x(Math.pow(10, e));
+    svg.appendChild(svgEl("line", { x1: px, x2: px, y1: top, y2: H - bottom, stroke: "var(--grid)" }));
+    const lab = e >= 0 ? `$${Math.pow(10, e)}` : `$${Math.pow(10, e).toFixed(-e)}`;
+    svg.appendChild(svgEl("text", { x: px, y: H - bottom + 18, "text-anchor": "middle", "font-size": 12, fill: "var(--muted)" }, lab));
+  }
+  for (let v = ymin; v <= 1.0001; v += 0.05) {
+    const py = y(v);
+    svg.appendChild(svgEl("line", { x1: left, x2: W - right, y1: py, y2: py, stroke: "var(--grid)" }));
+    svg.appendChild(svgEl("text", { x: left - 8, y: py + 4, "text-anchor": "end", "font-size": 12, fill: "var(--muted)" }, v.toFixed(2)));
+  }
+  svg.appendChild(svgEl("text", { x: (left + W - right) / 2, y: H - 8, "text-anchor": "middle", "font-size": 12, fill: "var(--muted)" }, "cost per correct answer, USD, log scale"));
+  svg.appendChild(svgEl("text", { x: left, y: 14, "font-size": 12, fill: "var(--muted)" }, "mean score"));
+  // label placement: try right, left, above, below; keep the first that does not collide
+  const placed = [];
+  const overlaps = (a, b) => !(a.x2 < b.x1 || a.x1 > b.x2 || a.y2 < b.y1 || a.y1 > b.y2);
+  pts.sort((a, b) => b.score - a.score).forEach(p => {
+    const cx = x(p.cost_per_correct_usd), cy = y(p.score);
+    svg.appendChild(svgEl("circle", { cx, cy, r: 6, fill: "var(--series)", stroke: "var(--surface)", "stroke-width": 2 }));
+    const tw = p.label.length * 6.6, th = 14;
+    const cands = [
+      { x: cx + 10, y: cy + 4, anchor: "start" }, { x: cx - 10, y: cy + 4, anchor: "end" },
+      { x: cx, y: cy - 11, anchor: "middle" }, { x: cx, y: cy + 18, anchor: "middle" },
+    ];
+    let chosen = cands[0];
+    for (const c of cands) {
+      const x1 = c.anchor === "start" ? c.x : c.anchor === "end" ? c.x - tw : c.x - tw / 2;
+      const box = { x1, x2: x1 + tw, y1: c.y - th, y2: c.y + 2 };
+      if (box.x1 < left || box.x2 > W - right) continue;
+      if (!placed.some(b => overlaps(b, box))) { chosen = c; placed.push(box); break; }
+    }
+    svg.appendChild(svgEl("text", { x: chosen.x, y: chosen.y, "text-anchor": chosen.anchor, "font-size": 12, fill: "var(--ink-2)" }, p.label));
+    const hit = svgEl("circle", { cx, cy, r: 14, fill: "transparent" });
+    const html = `<b>${esc(p.label)}</b>score ${fmt3(p.score)}<br>${esc(costText(p))}`;
+    hit.addEventListener("mouseenter", (ev) => showTip(ev, html));
+    hit.addEventListener("mousemove", moveTip);
+    hit.addEventListener("mouseleave", hideTip);
+    svg.appendChild(hit);
+  });
+  host.appendChild(svg);
+}
+
+function table(host, rows, anchorLabel) {
+  const h = ["#", "model", "score", "95% CI", "tasks", "total cost", "cost per correct", `vs ${anchorLabel}`];
+  let s = "<table><thead><tr>" + h.map((c, i) => `<th class="${i === 0 || i >= 2 ? "num" : ""}">${c}</th>`).join("") + "</tr></thead><tbody>";
+  for (const r of rows) {
+    const sub = r.cost_basis.startsWith("subscription");
+    const v = r.verdict_vs_anchor === "reference" ? "reference" : `${r.verdict_vs_anchor} (p=${r.sign_test_p_vs_anchor.toFixed(3)})`;
+    s += `<tr><td class="num">${r.rank}</td><td>${esc(r.label)}</td><td class="num">${fmt3(r.score)}</td><td class="num">[${fmt3(r.ci_low)}, ${fmt3(r.ci_high)}]</td><td class="num">${r.tasks}</td><td class="num">${sub ? "subscription" : "$" + r.total_cost_usd.toFixed(4)}</td><td class="num">${sub ? "n/a" : "$" + r.cost_per_correct_usd.toFixed(6)}</td><td class="num">${v}</td></tr>`;
+  }
+  host.innerHTML = s + "</tbody></table>";
+}
+function trackTable(host, rows, names) {
+  let s = "<table><thead><tr><th>model</th>" + names.map(n => `<th class="num">${n}</th>`).join("") + "</tr></thead><tbody>";
+  for (const r of rows) s += `<tr><td>${esc(r.label)}</td>` + names.map(n => `<td class="num">${r[n] == null ? "" : fmt3(r[n])}</td>`).join("") + "</tr>";
+  host.innerHTML = s + "</tbody></table>";
+}
+
+const A = DATA.runA, B = DATA.runB;
+const allModels = new Set([...A.overall, ...B.overall].map(r => r.model));
+$("#t-models").textContent = allModels.size;
+$("#t-tasks").textContent = DATA.nTasks;
+$("#t-scores").textContent = DATA.nScores.toLocaleString("en-US");
+$("#t-tx").textContent = DATA.nTranscripts.toLocaleString("en-US");
+$("#link-dataset").href = `https://huggingface.co/datasets/${DATA.dataset}`;
+$("#link-github").href = DATA.github;
+$("#gen").textContent = DATA.generated;
+$("#commit").textContent = DATA.commit;
+$("#fable-tasks").textContent = (B.overall.find(r => r.model === "claude-fable-5-1") || { tasks: "?" }).tasks;
+dotPlot($("#dotA"), A.overall, "Opus 4.8");
+scatter($("#scatterA"), A.overall);
+table($("#tableA"), A.overall, "Opus 4.8");
+trackTable($("#tracksA"), A.tracks, A.trackNames);
+dotPlot($("#dotB"), B.overall, "GPT-6 Astra");
+table($("#tableB"), B.overall, "GPT-6 Astra");
+trackTable($("#tracksB"), B.tracks, B.trackNames);
+</script>
+</body>
+</html>
