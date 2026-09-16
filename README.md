@@ -20,6 +20,12 @@ run is preserved in `results/report-2026-08-01.md`), quality-vs-cost plot at
 
 ![quality vs cost](results/plot-2026-09-10.png)
 
+Published on Hugging Face as the dataset
+[deluair/econ-eval](https://huggingface.co/datasets/deluair/econ-eval) (tasks,
+per-completion scores, transcripts, both leaderboards) with a static
+leaderboard at [huggingface.co/spaces/deluair/econ-eval](https://huggingface.co/spaces/deluair/econ-eval).
+`scripts/export_hf.py` regenerates both from `results/scores.sqlite`.
+
 ## Leaderboard
 
 | # | model | score | 95% CI | total cost | cost per correct | vs Opus |

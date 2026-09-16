@@ -65,6 +65,23 @@ any audit; write findings back here, dated.
   parquet, and author-defined arithmetic) and whose yamls were emitted by
   `scripts/gen_tasks_2026_09_15.py`.
 
+- Hugging Face export (2026-09-16): `scripts/export_hf.py --out DIR
+  --transcripts "$GDRIVE/econ-eval/results" --transcripts results` writes
+  `DIR/dataset` (tasks.jsonl, scores.csv with `judge` and `task_set` columns,
+  transcripts.jsonl, leaderboard/tracks CSVs, plots, dataset card) and
+  `DIR/space` (static index.html from `scripts/hf_space_template.html`, data
+  embedded). Upload with `hf upload deluair/econ-eval DIR/dataset . --repo-type
+  dataset` and `... DIR/space . --repo-type space`. Two leaderboards, never
+  merged: A = 20 original tasks, 12 models, Opus 5 judge; B = 50 tasks, the
+  five 2026-09-15 contestants, Astra judge except the cached Opus-5 rows of
+  deepseek-flash and muse on the original 20 (the `judge` column records it).
+  B excludes the agent pilot task, so DeepSeek reads 0.960 there against 0.961
+  in report-2026-09-15.md. Transcript score fields are overwritten from the
+  DB at export (June rows were regraded 2026-08-01). Coverage: 1,403 of 2,238
+  completions have transcripts (the 2026-08-01 OpenRouter fleet has none).
+  The export reproduces every README leaderboard A number exactly (checked
+  2026-09-16).
+
 ## Data/unit conventions
 
 - PRICES in config.py are USD per 1M tokens. OpenRouter entries read from
