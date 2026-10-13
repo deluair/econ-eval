@@ -74,7 +74,9 @@ class MuseAdapter:
     # A normal call takes 30 to 60 s. A call that hangs is one where the agent
     # proposed a tool call and is waiting for an approval that headless mode
     # never gives, so a short timeout plus the retry loop is the recovery path.
-    def __init__(self, cli: str = "muse", timeout_s: int = 180,
+    # MUSE_CLI: on Windows `muse` is a .cmd shim that keeps only the first line
+    # of a multi-line prompt; point it at the muse-bin-*.exe beside the shim.
+    def __init__(self, cli: str = os.environ.get("MUSE_CLI", "muse"), timeout_s: int = 180,
                  name: str = "muse", model: str = MODEL,
                  request_model: str | None = None,
                  contributor_mode: str | None = None) -> None:

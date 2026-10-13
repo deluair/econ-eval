@@ -90,6 +90,20 @@ def build_models(only: set[str] | None = None):
 def build_judge():
     import os
 
+    if os.environ.get("JUDGE") == "defer":
+        # 2026-10-13: completions on one machine, grading on another. Every judge
+        # row scores 0 until scripts/regrade_judge.py (JUDGE=astra) stamps it;
+        # rows without the astra-judge prefix are ungraded, never final.
+        from econ_eval.models import Completion
+
+        class _Deferred:
+            model = "deferred"
+
+            def run(self, prompt: str) -> Completion:
+                return Completion(text="{}", tokens_in=0, tokens_out=0, latency_s=0.0,
+                                  model=self.model, raw={})
+
+        return _Deferred()
     if os.environ.get("JUDGE", "opus") == "astra":
         from econ_eval.adapters.codex import CodexAdapter
 
