@@ -27,6 +27,10 @@ PRICES = {
     "claude-fable-5-1": {"in": 10.0, "out": 50.0},
     "gpt-6-astra": {"in": 0.0, "out": 0.0},
     "gemini-3.8-flash-high": {"in": 0.0, "out": 0.0},
+    # Muse Wonder 1.0 (2026-10-13): run on the Muse subscription; no API price
+    # verified, so 0 like the other subscription-only rows.
+    "muse-wonder-1.0-contributor": {"in": 0.0, "out": 0.0},
+    "muse-wonder-1.0": {"in": 0.0, "out": 0.0},
     "glm-5.2": {"in": 0.6, "out": 2.2},
     "deepseek-v4-flash": {"in": 0.3, "out": 1.1},
     "deepseek-flash": {"in": 0.15, "out": 0.6},
@@ -67,7 +71,12 @@ def build_models(only: set[str] | None = None):
               # 2026-09-15 contestants: subscription CLIs, see each adapter's docstring.
               "fable": OpusAdapter(name="fable", model="claude-fable-5-1", timeout_s=600),
               "astra": CodexAdapter(),
-              "gemini-3.8-flash": AgyAdapter()}
+              "gemini-3.8-flash": AgyAdapter(),
+              # 2026-10-13: Muse Wonder 1.0 on both subscription lanes.
+              "muse-wonder": MuseAdapter(name="muse-wonder", model="muse-wonder-1.0-contributor",
+                                         request_model="muse-wonder-1.0", contributor_mode="on"),
+              "muse-wonder-full": MuseAdapter(name="muse-wonder-full", model="muse-wonder-1.0",
+                                              request_model="muse-wonder-1.0", contributor_mode="off")}
     for name, model_id in OPENROUTER_MODELS.items():
         models[name] = OpenRouterAdapter(name, model_id)
     if only is not None:

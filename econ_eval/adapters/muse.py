@@ -13,6 +13,7 @@ from __future__ import annotations
 import glob
 import json
 import os
+import re
 import subprocess
 import tempfile
 import time
@@ -21,6 +22,7 @@ import uuid
 MODEL = "muse-spark-1.3-contributor"
 RETRIES = 3
 SESSIONS = os.path.expanduser("~/.local/share/muse/sessions")
+_SERVED = re.compile(r'"provider":"meta","request_id":"[^"]*","response_id":"[^"]*","model":"([^"]+)"')
 
 
 def _parse_stream(stdout: str) -> tuple[str, str]:
@@ -42,11 +44,20 @@ def _parse_stream(stdout: str) -> tuple[str, str]:
 
 
 def _session_usage(session_id: str) -> tuple[dict, str]:
-    """Sum usage over every model_completed record of the session; return (usage, model)."""
+    """Sum usage over every model_completed record of the session; return (usage, model).
+
+    The served model is the provider response's `model` (Muse Code 1.4.7 records
+    the requested id, e.g. `muse-wonder-1.0`, in model_completed even when the
+    contributor lane serves `muse-wonder-1.0-contributor`); model_completed is
+    the fallback for older sessions.
+    """
     total = {"input_tokens": 0, "output_tokens": 0, "reasoning_tokens": 0}
-    model = ""
+    model = served = ""
     for path in glob.glob(f"{SESSIONS}/*/*/*/{session_id}/session.jsonl"):
         for line in open(path):
+            m = _SERVED.search(line)
+            if m:
+                served = m.group(1)
             if '"model_completed"' not in line:
                 continue
             ev = json.loads(line).get("payload", {}).get("event", {})
@@ -56,7 +67,7 @@ def _session_usage(session_id: str) -> tuple[dict, str]:
             for k in total:
                 total[k] += int(u.get(k, 0) or 0)
             model = ev.get("model") or model
-    return total, model
+    return total, served or model
 
 
 class MuseAdapter:
@@ -64,11 +75,17 @@ class MuseAdapter:
     # proposed a tool call and is waiting for an approval that headless mode
     # never gives, so a short timeout plus the retry loop is the recovery path.
     def __init__(self, cli: str = "muse", timeout_s: int = 180,
-                 name: str = "muse", model: str = MODEL) -> None:
+                 name: str = "muse", model: str = MODEL,
+                 request_model: str | None = None,
+                 contributor_mode: str | None = None) -> None:
         self.cli = cli
         self.timeout_s = timeout_s
         self.name = name
         self.model = model
+        # 2026-10-13 Wonder contestants: pin the requested model and the lane
+        # (`--contributor-mode on` serves `<id>-contributor`, `off` the full model).
+        self.request_model = request_model
+        self.contributor_mode = contributor_mode
         self._workdir: str | None = None
 
     def _cwd(self) -> str:
@@ -82,8 +99,15 @@ class MuseAdapter:
         t0 = time.monotonic()
         for attempt in range(RETRIES):
             sid = str(uuid.uuid4())
+            cmd = [self.cli, "exec", "--json", "--session-id", sid]
+            if self.request_model:
+                # 1.4.7 refuses a headless run in an undecided workspace; the
+                # scratch dir is empty, so trusting it for the run is safe.
+                cmd += ["--trust-workspace", "--model", self.request_model]
+            if self.contributor_mode:
+                cmd += ["--contributor-mode", self.contributor_mode]
             proc = subprocess.run(
-                [self.cli, "exec", "--json", "--session-id", sid, prompt],
+                cmd + [prompt],
                 cwd=self._cwd(), capture_output=True, text=True, timeout=self.timeout_s,
             )
             terminal, text = _parse_stream(proc.stdout)
