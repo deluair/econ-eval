@@ -106,19 +106,29 @@ class MuseAdapter:
                 # 1.4.7 refuses a headless run in an undecided workspace; the
                 # scratch dir is empty, so trusting it for the run is safe.
                 cmd += ["--trust-workspace", "--model", self.request_model]
+                # Coding prompts made every Wonder call sit in approval_wait until
+                # the timeout (2026-10-13). With shell and writes off there is no
+                # tool call to approve; the answer is the model's text alone.
+                cmd += ["--disable-shell", "--disable-write", "--user-input-auto-resolve",
+                        # trims the harness context billed on every call
+                        "--disable-web-tools", "--disable-reminders",
+                        "--no-foreign-personal-context"]
             if self.contributor_mode:
                 cmd += ["--contributor-mode", self.contributor_mode]
-            proc = subprocess.run(
-                cmd + [prompt],
-                cwd=self._cwd(), capture_output=True, text=True, timeout=self.timeout_s,
-            )
-            terminal, text = _parse_stream(proc.stdout)
-            if proc.returncode == 0 and terminal == "completed":
+            try:
+                proc = subprocess.run(
+                    cmd + [prompt],
+                    cwd=self._cwd(), capture_output=True, text=True, timeout=self.timeout_s,
+                )
+                rc, stderr = proc.returncode, proc.stderr
+                terminal, text = _parse_stream(proc.stdout)
+            except subprocess.TimeoutExpired:
+                rc, stderr, terminal, text = None, f"timed out after {self.timeout_s} s", "", ""
+            if rc == 0 and terminal == "completed":
                 break
             if attempt == RETRIES - 1:
                 raise RuntimeError(
-                    f"muse CLI failed ({proc.returncode}, terminal={terminal!r}): "
-                    f"{proc.stderr[-500:]}")
+                    f"muse CLI failed ({rc}, terminal={terminal!r}): {stderr[-500:]}")
             time.sleep(10 * (attempt + 1))
         latency = time.monotonic() - t0
         usage, served = _session_usage(sid)
