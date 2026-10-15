@@ -75,6 +75,41 @@ the same caveat, at 57,539 input tokens per call through the Muse Code CLI,
 priced here at Meta's contributor API rate although the run itself was
 subscription prompts.
 
+## Leaderboard B: 50 tasks, GPT-6 Astra judge
+
+The 20 tasks above plus the 30 daily-work tasks added 2026-09-15, graded by
+GPT-6 Astra. Five models ran on 2026-09-15; Meta Muse Wonder 1.0 was added
+2026-10-13, through the Muse Code CLI in both its contributor and full modes.
+
+| # | model | score | 95% CI | total cost | vs Astra |
+|---|---|---|---|---|---|
+| 1 | gpt-6-astra | 0.983 | [0.966, 0.997] | subscription | reference |
+| 2 | muse-wonder-1.0-contributor | 0.978 | [0.951, 0.998] | subscription | tied (p=1.000) |
+| 3 | gemini-3.8-flash-high | 0.977 | [0.950, 0.998] | subscription | tied (p=1.000) |
+| 4 | muse-wonder-1.0 | 0.977 | [0.947, 1.000] | subscription | tied (p=1.000) |
+| 5 | muse-spark-1.3-contributor | 0.966 | [0.938, 0.988] | $1.28 | loses (p=0.039) |
+| 6 | deepseek-flash (V4.1) | 0.961 | [0.920, 0.991] | $0.31 | tied (p=0.180) |
+| 7 | claude-fable-5-1 | 0.948 | [0.913, 0.979] | $11.66 | tied (p=0.549) |
+
+Same scoring and sign test as the table above, with Astra as the reference.
+Wonder ran 2 samples per task (5 for the earlier models), to cut token cost,
+so its intervals are a little wider. Fable is compared on the 47 tasks it
+completed. Full report: [results/report-2026-10-13.md](results/report-2026-10-13.md).
+
+**Muse Wonder 1.0 ties GPT-6 Astra and Gemini 3.8 Flash High at the top, and
+the contributor and full modes are indistinguishable (0.978 vs 0.977).** Both
+are perfect on the quantitative, reasoning, coding and finance tracks and lose
+points only on writing (0.938 contributor, 0.925 full) and review (0.887,
+0.900). The weakest task for both is `write-cover-paragraph` (2 of 4 rubric
+points on every sample), then `review-agent-brief`, `write-abstract-150`, and
+one Bangla or referee-comment task each. Wonder improves on Muse Spark 1.3,
+which loses to Astra on the sign test; Wonder does not.
+
+Wonder needed a harness fix to be scored at all: with shell and file writes
+enabled, every coding prompt sat waiting for a tool approval until timeout.
+The adapter now runs it text-only (`--disable-shell --disable-write`), which
+also cut input to about 27k tokens per call.
+
 ## Which track separates the models
 
 Not all four tracks carry information. Spread between best and worst model:
@@ -241,6 +276,8 @@ hidden thinking, which the DeepSeek endpoint bills as output.
 | fable | `claude-fable-5-1` | `claude` CLI, subscription (2026-09-15 run) | 10.00 | 50.00 |
 | astra | `gpt-6-astra` | `codex exec` CLI, ChatGPT plan, reasoning high (2026-09-15 run) | subscription | subscription |
 | gemini-3.8-flash | `gemini-3.8-flash-high` | `agy` CLI, Google AI Ultra (2026-09-15 run) | subscription | subscription |
+| muse-wonder | `muse-wonder-1.0-contributor` | `muse` CLI (Muse Code), subscription, contributor mode, text-only (2026-10-13 run) | subscription | subscription |
+| muse-wonder-full | `muse-wonder-1.0` | `muse` CLI (Muse Code), subscription, contributor mode off, text-only (2026-10-13 run) | subscription | subscription |
 | opus | `claude-opus-4-8` | `claude` CLI, subscription | 5.00 | 25.00 |
 | glm | `glm-5.2` | z.ai direct, Anthropic-compatible | 0.60 | 2.20 |
 | deepseek-flash | `deepseek-flash` (V4.1 Flash) | DeepSeek direct, Anthropic-compatible | 0.15 | 0.60 |

@@ -53,6 +53,18 @@ any audit; write findings back here, dated.
   it Gemini tried `read_file` on "return only the code" prompts, print mode
   auto-denied it, and the reply came back empty (every coding task 0.0,
   reproduced 2026-09-15). Same class of accommodation as the Muse adapter.
+- Contestants `muse-wonder` and `muse-wonder-full` (2026-10-13): Meta Muse
+  Wonder 1.0 through Muse Code 1.4.7 (`--model muse-wonder-1.0`), the
+  contributor lane (`--contributor-mode on`, served as
+  `muse-wonder-1.0-contributor`) and the full model (`off`, served as
+  `muse-wonder-1.0`). Both run text-only: `--disable-shell --disable-write
+  --user-input-auto-resolve` (no tool call, so no approval hang) plus
+  `--disable-web-tools --disable-reminders --no-foreign-personal-context`,
+  which cut harness input from 35-70k to about 25k tokens per call. Two
+  samples per task (cut from 5 for token cost; tasks reached before the cut
+  keep up to 5). Run split across machines: completions on galaxy with
+  `JUDGE=defer`, judge rows regraded on ms5 with `JUDGE=astra
+  scripts/regrade_judge.py` (see `scripts/run_2026_10_13.sh`).
 - `eval --shard i/k` (2026-09-15) partitions the task list by index modulo k so
   k workers of one model can run at once against the shared sqlite cache; each
   worker writes `transcripts-<date>-<model>-shardIofK.jsonl`. Launcher for the
@@ -91,6 +103,13 @@ any audit; write findings back here, dated.
   caveat); not comparable to bare API token counts.
 
 ## Resolved (dated)
+
+- 2026-10-15: Muse Wonder 1.0 added to Leaderboard B (run 2026-10-13, 2 samples
+  per task, Astra judge, all 38 judge rows per model stamped `astra-judge`).
+  Contributor 0.978 [0.951, 0.998], full 0.977 [0.947, 1.000]; both tie Astra
+  (sign test p=1.000). The five 2026-09-15 scores reproduce unchanged
+  (2,238 non-Wonder rows identical before and after the regrade).
+  Report `results/report-2026-10-13.md`.
 
 - 2026-09-15: 50-task expanded daily-work benchmark (250 completions per model)
   completed across 5 primary subscription and API contestants with Astra judge
@@ -167,6 +186,20 @@ any audit; write findings back here, dated.
   not be committed from the Claude Code background job because its auto-mode
   classifier refuses to write a flag that disables another tool's approvals;
   add it by hand if hangs recur (the user approved it on 2026-09-10).
+  2026-10-13: with Wonder every coding prompt hung, and `TimeoutExpired`
+  escaped the retry loop and killed the whole task. Fixed for the Wonder
+  adapters by disabling shell and writes (text-only answers) and catching the
+  timeout inside the retry loop. Spark's adapter call is unchanged.
+- Muse Code 1.4.7 writes the REQUESTED model id into `model_completed`; the
+  served id is the provider record's `"model"` after `request_id` and
+  `response_id` (`_SERVED` in `adapters/muse.py`). The adapter checks that one.
+- On Windows `muse` is a `.cmd` shim that keeps only the first line of a
+  multi-line argument; set `MUSE_CLI` to the `muse-bin-*.exe` beside it, and
+  `PYTHONUTF8=1` for the Bangla task files.
+- `JUDGE=defer` writes judge rows with score 0 and no `astra-judge` prefix.
+  They are ungraded, never final: check every judge row carries the prefix
+  before reporting (the 2026-10-13 regrade hit the ChatGPT plan usage limit
+  after 28 of 38 rows per model and had to wait for the reset).
 - The runner buffers transcript writes until the process exits, so a task's
   transcript file is empty while its 5 samples run; read the Muse session
   store (or the DB) for in-flight inspection.

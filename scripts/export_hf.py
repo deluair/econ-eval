@@ -37,8 +37,9 @@ ROOT = Path(__file__).resolve().parents[1]
 DB = ROOT / "results" / "scores.sqlite"
 
 # The two runs on record. A: 20 original tasks, 12 models, one judge (Opus 5).
-# B: 50 tasks, the five 2026-09-15 contestants, judge GPT-6 Astra for every
-# row that was not already cached from the Opus-5-judged 2026-09-10 run.
+# B: 50 tasks, the five 2026-09-15 contestants plus the two Muse Wonder 1.0
+# lanes added 2026-10-13, judge GPT-6 Astra for every row that was not already
+# cached from the Opus-5-judged 2026-09-10 run.
 RUN_A_MODELS = [
     "deepseek-flash", "claude-opus-4-8", "moonshotai/kimi-k3",
     "muse-spark-1.3-contributor", "google/gemini-3.6-flash", "openai/gpt-5.6-luna",
@@ -48,6 +49,7 @@ RUN_A_MODELS = [
 RUN_B_MODELS = [
     "gpt-6-astra", "gemini-3.8-flash-high", "muse-spark-1.3-contributor",
     "deepseek-flash", "claude-fable-5-1",
+    "muse-wonder-1.0", "muse-wonder-1.0-contributor",
 ]
 RUN_A_DATE = "2026-09-10"
 RUN_B_DATE = "2026-09-15"
@@ -73,8 +75,11 @@ LABEL = {
     "gpt-6-astra": "GPT-6 Astra",
     "gemini-3.8-flash-high": "Gemini 3.8 Flash (high)",
     "claude-fable-5-1": "Claude Fable 5.1",
+    "muse-wonder-1.0": "Meta Muse Wonder 1.0",
+    "muse-wonder-1.0-contributor": "Meta Muse Wonder 1.0 (contributor)",
 }
-SUBSCRIPTION_ONLY = {"gpt-6-astra", "gemini-3.8-flash-high"}
+SUBSCRIPTION_ONLY = {"gpt-6-astra", "gemini-3.8-flash-high",
+                     "muse-wonder-1.0", "muse-wonder-1.0-contributor"}
 
 
 # ----------------------------------------------------------------- tasks
@@ -391,13 +396,15 @@ token counts include the whole harness context, so their cost column is
 inflated relative to the raw-API models. The GitHub README reports a corrected
 Opus figure; the conclusion does not change.
 
-## Leaderboard B: 50 tasks, 5 models ({RUN_B_DATE})
+## Leaderboard B: 50 tasks, 7 models ({RUN_B_DATE}, Muse Wonder added 2026-10-13)
 
 The 20 tasks above plus 30 "daily work" tasks (bilateral trade shares, RMG
 share change, tariff-weighted averages, SRISK, Eisenberg-Noe clearing, CET1,
 term premium, HS-code normalisation, referee comments, an agent brief, an
 X post, a recruiter reply, plain-Bangla remittance explainer, and more), five
-samples each. Five models, all frontier-tier, mostly through subscription CLIs.
+samples each. Seven models, all frontier-tier, mostly through subscription CLIs.
+Meta Muse Wonder 1.0 was added on 2026-10-13 on both Muse Code lanes: the
+contributor lane and the full model. Same tasks, same Astra judge.
 
 {overall_md(B, "GPT-6 Astra")}
 
@@ -415,9 +422,9 @@ Per track:
 2. **Incomplete Fable row.** Claude Fable 5.1 covers {fable['tasks']} of 50 tasks
    ({fable['completions']} completions); the run hit the CLI credit wall. Its
    sign test uses only the tasks it completed.
-3. **No price for two models.** GPT-6 Astra and Gemini 3.8 Flash are served
-   only through subscriptions, so their cost is shown as "subscription", not
-   zero.
+3. **No price for four models.** GPT-6 Astra, Gemini 3.8 Flash and both Muse
+   Wonder lanes are served only through subscriptions, so their cost is
+   shown as "subscription", not zero.
 
 This table scores the 50 shared tasks only. The four agent-track pilot tasks
 in `tasks.jsonl` were run by two models on one task and are excluded here;
@@ -427,7 +434,7 @@ DeepSeek at 0.961 rather than 0.960.
 ## Transcript coverage
 
 `transcripts.jsonl` holds {n_tx:,} of the {n_scores:,} graded completions: all
-five Leaderboard B models plus the June 2026 Opus 4.8 and GLM 5.2 runs. The
+seven Leaderboard B models plus the June 2026 Opus 4.8 and GLM 5.2 runs. The
 2026-08-01 OpenRouter fleet (eight models) was run on a machine whose
 transcripts were never backed up, so only their scores survive. The `score`,
 `passed` and `detail` fields are copied from `scores.csv` at export time, so
