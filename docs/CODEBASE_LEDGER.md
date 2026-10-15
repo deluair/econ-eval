@@ -104,6 +104,13 @@ any audit; write findings back here, dated.
 
 ## Resolved (dated)
 
+- 2026-10-15: Muse Wonder 1.0 added to Leaderboard B (run 2026-10-13, 2 samples
+  per task, Astra judge, all 38 judge rows per model stamped `astra-judge`).
+  Contributor 0.978 [0.951, 0.998], full 0.977 [0.947, 1.000]; both tie Astra
+  (sign test p=1.000). The five 2026-09-15 scores reproduce unchanged
+  (2,238 non-Wonder rows identical before and after the regrade).
+  Report `results/report-2026-10-13.md`.
+
 - 2026-09-15: 50-task expanded daily-work benchmark (250 completions per model)
   completed across 5 primary subscription and API contestants with Astra judge
   (`export JUDGE=astra` via `CodexAdapter` after Claude CLI judge credit limits).
