@@ -83,18 +83,18 @@ GPT-6 Astra. Five models ran on 2026-09-15; Meta Muse Wonder 1.0 was added
 
 | # | model | score | 95% CI | total cost | vs Astra |
 |---|---|---|---|---|---|
-| 1 | gpt-6-astra | 0.983 | [0.966, 0.997] | subscription | reference |
+| 1 | gpt-6-astra | 0.983 | [0.966, 0.996] | subscription | reference |
 | 2 | muse-wonder-1.0-contributor | 0.978 | [0.951, 0.998] | subscription | tied (p=1.000) |
 | 3 | gemini-3.8-flash-high | 0.977 | [0.950, 0.998] | subscription | tied (p=1.000) |
 | 4 | muse-wonder-1.0 | 0.977 | [0.947, 1.000] | subscription | tied (p=1.000) |
 | 5 | muse-spark-1.3-contributor | 0.966 | [0.938, 0.988] | $1.28 | loses (p=0.039) |
-| 6 | deepseek-flash (V4.1) | 0.961 | [0.920, 0.991] | $0.31 | tied (p=0.180) |
+| 6 | deepseek-flash (V4.1) | 0.960 | [0.916, 0.991] | $0.31 | tied (p=0.180) |
 | 7 | claude-fable-5-1 | 0.948 | [0.913, 0.979] | $11.66 | tied (p=0.549) |
 
 Same scoring and sign test as the table above, with Astra as the reference.
 Wonder ran 2 samples per task (5 for the earlier models), to cut token cost,
 so its intervals are a little wider. Fable is compared on the 47 tasks it
-completed. Full report: [results/report-2026-10-13.md](results/report-2026-10-13.md).
+completed. Scores cover the 50 shared tasks only; [results/report-2026-10-13.md](results/report-2026-10-13.md) also counts the agent-pilot task some models ran, so its Astra and DeepSeek rows differ in the third decimal.
 
 **Muse Wonder 1.0 ties GPT-6 Astra and Gemini 3.8 Flash High at the top, and
 the contributor and full modes are indistinguishable (0.978 vs 0.977).** Both
