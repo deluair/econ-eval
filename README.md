@@ -79,7 +79,8 @@ subscription prompts.
 
 The 20 tasks above plus the 30 daily-work tasks added 2026-09-15, graded by
 GPT-6 Astra. Five models ran on 2026-09-15; Meta Muse Wonder 1.0 was added
-2026-10-13, through the Muse Code CLI in both its contributor and full modes.
+2026-10-13, through the Muse Code CLI in both its contributor and full modes;
+Google Gemini 4 Argon (high effort, through agy) was added 2026-10-15.
 
 | # | model | score | 95% CI | total cost | vs Astra |
 |---|---|---|---|---|---|
@@ -87,14 +88,25 @@ GPT-6 Astra. Five models ran on 2026-09-15; Meta Muse Wonder 1.0 was added
 | 2 | muse-wonder-1.0-contributor | 0.978 | [0.951, 0.998] | subscription | tied (p=1.000) |
 | 3 | gemini-3.8-flash-high | 0.977 | [0.950, 0.998] | subscription | tied (p=1.000) |
 | 4 | muse-wonder-1.0 | 0.977 | [0.947, 1.000] | subscription | tied (p=1.000) |
-| 5 | muse-spark-1.3-contributor | 0.966 | [0.938, 0.988] | $1.28 | loses (p=0.039) |
-| 6 | deepseek-flash (V4.1) | 0.960 | [0.916, 0.991] | $0.31 | tied (p=0.180) |
-| 7 | claude-fable-5-1 | 0.948 | [0.913, 0.979] | $11.66 | tied (p=0.549) |
+| 5 | gemini-4-argon-high | 0.971 | [0.942, 0.995] | subscription | tied (p=1.000) |
+| 6 | muse-spark-1.3-contributor | 0.966 | [0.938, 0.988] | $1.28 | loses (p=0.039) |
+| 7 | deepseek-flash (V4.1) | 0.960 | [0.916, 0.991] | $0.31 | tied (p=0.180) |
+| 8 | claude-fable-5-1 | 0.948 | [0.913, 0.979] | $11.66 | tied (p=0.549) |
 
 Same scoring and sign test as the table above, with Astra as the reference.
 Wonder ran 2 samples per task (5 for the earlier models), to cut token cost,
-so its intervals are a little wider. Fable is compared on the 47 tasks it
-completed. Scores cover the 50 shared tasks only; [results/report-2026-10-13.md](results/report-2026-10-13.md) also counts the agent-pilot task some models ran, so its Astra and DeepSeek rows differ in the third decimal.
+so its intervals are a little wider. Argon ran 1 sample per task, a deliberately
+small run, so its score is the least stable on the board. Fable is compared on the 47 tasks it
+completed. Scores cover the 50 shared tasks only; [results/report-2026-10-13.md](results/report-2026-10-13.md) and [results/report-2026-10-15.md](results/report-2026-10-15.md) also count the agent-pilot task some models ran, so their Astra and DeepSeek rows differ in the third decimal.
+
+**Gemini 4 Argon ties Astra and every other model on the board.** It is perfect
+on the quantitative, reasoning, coding and finance tracks and loses points only
+on writing (0.925) and review (0.825): `write-cover-paragraph` 2 of 4 rubric
+points, `review-referee-comment`, `review-consistency` and
+`write-bangla-plain-remittance` 3 of 4, `review-agent-brief` 4 of 5. Against
+Astra it wins 5 tasks and loses 4; against Gemini 3.8 Flash High it wins 3 and
+loses 2, so on this suite the newer Gemini is not measurably better than
+Flash. Through agy each call carries about 25k input tokens of harness context.
 
 **Muse Wonder 1.0 ties GPT-6 Astra and Gemini 3.8 Flash High at the top, and
 the contributor and full modes are indistinguishable (0.978 vs 0.977).** Both
