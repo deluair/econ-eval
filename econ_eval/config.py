@@ -34,6 +34,9 @@ PRICES = {
     # Gemini 4 Argon (2026-10-15): served through agy on the Google AI subscription;
     # no API price verified, so 0 like the other subscription-only rows.
     "gemini-4-argon-high": {"in": 0.0, "out": 0.0},
+    # Muse Ember 1.0 (2026-11-09): Meta Model API list price, research.meta.ai/blog/muse-ember
+    # (cached input $0.004 not modelled); the run itself goes through the Muse subscription.
+    "muse-ember-1.0": {"in": 0.1, "out": 0.5},
     "glm-5.2": {"in": 0.6, "out": 2.2},
     "deepseek-v4-flash": {"in": 0.3, "out": 1.1},
     "deepseek-flash": {"in": 0.15, "out": 0.6},
@@ -81,7 +84,10 @@ def build_models(only: set[str] | None = None):
               "muse-wonder-full": MuseAdapter(name="muse-wonder-full", model="muse-wonder-1.0",
                                               request_model="muse-wonder-1.0", contributor_mode="off"),
               # 2026-10-15: Gemini 4 Argon through agy, high effort to match gemini-3.8-flash-high.
-              "gemini-4-argon": AgyAdapter(name="gemini-4-argon", model="gemini-4-argon-high")}
+              "gemini-4-argon": AgyAdapter(name="gemini-4-argon", model="gemini-4-argon-high"),
+              # 2026-11-09: Muse Ember 1.0 on the subscription, tool flags as for Wonder.
+              "muse-ember": MuseAdapter(name="muse-ember", model="muse-ember-1.0",
+                                        request_model="muse-ember-1.0", contributor_mode="off")}
     for name, model_id in OPENROUTER_MODELS.items():
         models[name] = OpenRouterAdapter(name, model_id)
     if only is not None:
