@@ -49,7 +49,7 @@ RUN_A_MODELS = [
 RUN_B_MODELS = [
     "gpt-6-astra", "gemini-3.8-flash-high", "muse-spark-1.3-contributor",
     "deepseek-flash", "claude-fable-5-1",
-    "muse-wonder-1.0", "muse-wonder-1.0-contributor",
+    "muse-wonder-1.0", "muse-wonder-1.0-contributor", "muse-ember-1.0",
 ]
 RUN_A_DATE = "2026-09-10"
 RUN_B_DATE = "2026-09-15"
@@ -77,6 +77,7 @@ LABEL = {
     "claude-fable-5-1": "Claude Fable 5.1",
     "muse-wonder-1.0": "Meta Muse Wonder 1.0",
     "muse-wonder-1.0-contributor": "Meta Muse Wonder 1.0 (contributor)",
+    "muse-ember-1.0": "Meta Muse Ember 1.0",
 }
 SUBSCRIPTION_ONLY = {"gpt-6-astra", "gemini-3.8-flash-high",
                      "muse-wonder-1.0", "muse-wonder-1.0-contributor"}

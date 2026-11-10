@@ -80,7 +80,9 @@ subscription prompts.
 The 20 tasks above plus the 30 daily-work tasks added 2026-09-15, graded by
 GPT-6 Astra. Five models ran on 2026-09-15; Meta Muse Wonder 1.0 was added
 2026-10-13, through the Muse Code CLI in both its contributor and full modes;
-Google Gemini 4 Argon (high effort, through agy) was added 2026-10-15.
+Google Gemini 4 Argon (high effort, through agy) was added 2026-10-15;
+Meta Muse Ember 1.0 (default high effort, through the Muse Code CLI) was added
+2026-11-09, its release day.
 
 | # | model | score | 95% CI | total cost | vs Astra |
 |---|---|---|---|---|---|
@@ -91,13 +93,35 @@ Google Gemini 4 Argon (high effort, through agy) was added 2026-10-15.
 | 5 | gemini-4-argon-high | 0.971 | [0.942, 0.995] | subscription | tied (p=1.000) |
 | 6 | muse-spark-1.3-contributor | 0.966 | [0.938, 0.988] | $1.28 | loses (p=0.039) |
 | 7 | deepseek-flash (V4.1) | 0.960 | [0.916, 0.991] | $0.31 | tied (p=0.180) |
-| 8 | claude-fable-5-1 | 0.948 | [0.913, 0.979] | $11.66 | tied (p=0.549) |
+| 8 | muse-ember-1.0 | 0.950 | [0.909, 0.981] | $0.92 | tied (p=0.119) |
+| 9 | claude-fable-5-1 | 0.948 | [0.913, 0.979] | $11.66 | tied (p=0.549) |
 
 Same scoring and sign test as the table above, with Astra as the reference.
+Ember's cost is its Meta Model API list price ($0.10 in, $0.50 out per million
+tokens) applied to the measured tokens; the run itself used the Muse subscription.
 Wonder ran 2 samples per task (5 for the earlier models), to cut token cost,
 so its intervals are a little wider. Argon ran 1 sample per task, a deliberately
 small run, so its score is the least stable on the board. Fable is compared on the 47 tasks it
-completed. Scores cover the 50 shared tasks only; [results/report-2026-10-13.md](results/report-2026-10-13.md) and [results/report-2026-10-15.md](results/report-2026-10-15.md) also count the agent-pilot task some models ran, so their Astra and DeepSeek rows differ in the third decimal.
+completed. Scores cover the 50 shared tasks only; [results/report-2026-10-13.md](results/report-2026-10-13.md), [results/report-2026-10-15.md](results/report-2026-10-15.md) and [results/report-2026-11-09.md](results/report-2026-11-09.md) also count the agent-pilot task some models ran, so their Astra and DeepSeek rows differ in the third decimal.
+
+**Muse Ember 1.0 is the fastest model on the board and ties Astra, but scores
+below Muse Spark 1.3 (0.950 vs 0.966).** Over 50 tasks and 5 samples each it
+wins 4 tasks against Astra and loses 11, which the sign test does not separate
+(p=0.119); against Spark it wins 6 and loses 9. It is near-perfect on reasoning
+(0.990), quantitative (0.982) and coding (0.980), and drops points on writing
+(0.901), review (0.892) and finance (0.880). The weakest task is `fin-srisk`
+(3 of 5 samples wrong: 18.0 twice and 1,252.17 once, against a reference of
+13.2), then `write-cover-paragraph` (0.60), `write-bangla-plain-remittance`
+(0.65) and `review-agent-brief` (0.72); `code-kusd-format` and
+`quant-cagr-decade` each lost one sample. Median latency is 4.6 s per call
+(p95 13.6 s, n=250), against 6.8 s for Muse Wonder under the same text-only
+flags and 13.7 s for Astra; Spark's 32.2 s comes from its 2026-09-15 run with
+tools enabled, so it is not like for like. A separate streaming check the same
+day (one 800-word essay, 3 runs each) measured about 174 output tokens/s end to
+end for Ember at high effort against 35 for Spark 1.3. Each call carries about
+28.6k input tokens of Muse Code harness context on average. Ember's judge rows
+were graded in two passes the same day (46 inline, 49 after a ChatGPT usage
+limit reset), all by Astra.
 
 **Gemini 4 Argon ties Astra and every other model on the board.** It is perfect
 on the quantitative, reasoning, coding and finance tracks and loses points only
