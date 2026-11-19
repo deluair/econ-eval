@@ -34,6 +34,9 @@ PRICES = {
     # Gemini 4 Argon (2026-10-15): served through agy on the Google AI subscription;
     # no API price verified, so 0 like the other subscription-only rows.
     "gemini-4-argon-high": {"in": 0.0, "out": 0.0},
+    # Gemini 4 Neon (2026-11-19): agy on the Google AI subscription, no API price.
+    "gemini-4-neon-low": {"in": 0.0, "out": 0.0},
+    "gemini-4-neon-high": {"in": 0.0, "out": 0.0},
     "glm-5.2": {"in": 0.6, "out": 2.2},
     "deepseek-v4-flash": {"in": 0.3, "out": 1.1},
     "deepseek-flash": {"in": 0.15, "out": 0.6},
@@ -81,7 +84,10 @@ def build_models(only: set[str] | None = None):
               "muse-wonder-full": MuseAdapter(name="muse-wonder-full", model="muse-wonder-1.0",
                                               request_model="muse-wonder-1.0", contributor_mode="off"),
               # 2026-10-15: Gemini 4 Argon through agy, high effort to match gemini-3.8-flash-high.
-              "gemini-4-argon": AgyAdapter(name="gemini-4-argon", model="gemini-4-argon-high")}
+              "gemini-4-argon": AgyAdapter(name="gemini-4-argon", model="gemini-4-argon-high"),
+              # 2026-11-19: Gemini 4 Neon through agy, the fastest (low) and high effort.
+              "gemini-4-neon-low": AgyAdapter(name="gemini-4-neon-low", model="gemini-4-neon-low"),
+              "gemini-4-neon-high": AgyAdapter(name="gemini-4-neon-high", model="gemini-4-neon-high")}
     for name, model_id in OPENROUTER_MODELS.items():
         models[name] = OpenRouterAdapter(name, model_id)
     if only is not None:
@@ -109,6 +115,12 @@ def build_judge():
                                   model=self.model, raw={})
 
         return _Deferred()
+    if os.environ.get("JUDGE") == "opus55":
+        # 2026-11-19: Opus 5.5 judge for the Neon run; rows are stamped
+        # "opus55-judge " afterwards so they never share a board with other judges.
+        from econ_eval.adapters.opus import OpusAdapter
+
+        return OpusAdapter(name="judge", model="claude-opus-5-5", timeout_s=600)
     if os.environ.get("JUDGE", "opus") == "astra":
         from econ_eval.adapters.codex import CodexAdapter
 
